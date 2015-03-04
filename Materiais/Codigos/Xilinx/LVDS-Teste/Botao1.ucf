@@ -1,0 +1,17 @@
+
+
+NET "SW[1]" LOC = G10;
+NET "SW[2]" LOC = K9;
+NET "LED[1]" LOC = AN2;
+NET "LED[2]" LOC = AP2;
+NET "LED[3]" LOC = AM2;
+NET "CLOCK" LOC = H18;
+
+# PlanAhead Generated physical constraints 
+
+NET "Switch[1]" LOC = G10;
+NET "Switch[2]" LOC = K9;
+NET "LEDS[1]" LOC = AN2;
+NET "LEDS[2]" LOC = AP2;
+NET "LEDS[3]" LOC = AM2;
+NET "CLK" LOC = H18;
