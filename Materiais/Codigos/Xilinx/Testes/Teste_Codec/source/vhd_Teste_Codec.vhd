@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -126,11 +127,22 @@ architecture Behavioral of vhd_Teste_Codec is
 	signal EstadoInterno : std_logic_vector(9 downto 0);
 	------------------------------------------------------------------
 
+	signal somador  : integer := 0;
+	signal contador : integer := 0;
+	
+	-- Estados:
+	type state_type is (estado_desativado, estado_inicia, estado_espera, estado_escreve); 
+	signal estado_codec : state_type;
+	--------------------------------------------------------------------------------------
 begin
 
+Clk <= CLOCK;
+
+-- Comandos para inicializaçao do CodecSpWXNSEE2
  LinkStart 		<= '1';
  LinkDisable 	<= '0';
  AutoStart 	 	<= '1';
+----------------------------------------------- 
  
    c_SpW: CodecSpWXNSEE2 PORT MAP (
           Clk           => Clk,
@@ -157,13 +169,67 @@ begin
 
 	PROCESS (CLOCK)
 	begin
-		if (rising_edge(CLOCK)) then
-			
-			if (EstadoInterno(9) = '1') then
+		if (EstadoInterno(9) = '0') then
+			estado_codec <= estado_desativado;
+		elsif	(rising_edge(CLOCK)) then
+			case estado_codec is
 				
-				
-			end if;
+				when estado_desativado =>
+					if (EstadoInterno(9) = '1') then -- verifica se conexão está em "running"
+						estado_codec <= estado_inicia; -- vai para estado_inicia
+						else
+						estado_codec <= estado_desativado; -- continua no estado desativado
+					end if;	
+					
+				when estado_inicia =>
+					if (contador < 5) then
+						contador <= contador + 1;
+						estado_codec <= estado_inicia; -- continua estado_inicia
+					else	
+						if (contador = 5) then
+							somador <= somador + 1;
+							estado_codec <= estado_espera; -- vai para estado_espera
+						end if;	
+					end if;	
+					
+				when estado_espera =>
+               if (TX_Ready = '1') then --verifica se pode escrever dados na entrada
+                  estado_codec <= estado_escreve; -- vai para estado_escreve
+					else
+						estado_codec <= estado_espera; -- continua estado_espera
+					end if;	
+            when estado_escreve =>
+				   if (TX_Ready = '1') then
+						estado_codec <= estado_escreve;
+					else
+						estado_codec <= estado_inicia;
+					end if;	
+			end case;
 		end if;
+	end PROCESS;
+	
+	
+	
+	PROCESS (estado_codec)
+	begin
+      case estado_codec is
+         when estado_desativado => 
+			     contador <= 0;
+			     somador  <= 0;
+				  TX_Write <= '0';
+				  
+			when estado_inicia =>
+				  TX_Write <= '0';
+				  
+         when estado_espera =>
+				  contador <= 0;
+			     TX_Write <= '0';
+				  
+         when estado_escreve =>
+              TX_Data  <= std_logic_vector(to_unsigned(somador, TX_Data'length));
+              TX_Write <= '1';
+		end case;		  
+			
 	end PROCESS;
 
 -------------------------------------------------------------------------------
