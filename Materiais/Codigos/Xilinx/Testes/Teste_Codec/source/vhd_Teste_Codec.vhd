@@ -35,6 +35,9 @@ entity vhd_Teste_Codec is
            CLOCK : in  STD_LOGIC;
            RESET : in  STD_LOGIC;
 			  
+			  -- Saida LEDS
+			  LED   : out std_logic_vector(1 to 3); 
+			  
 			  -- Sinais LVDS
 					-- saídas
 					LVDS_DOUT_p : out std_logic;
@@ -53,6 +56,9 @@ architecture Behavioral of vhd_Teste_Codec is
 
 	-- Component Declaration for the Unit Under Test (UUT)
     COMPONENT CodecSpWXNSEE2
+	GENERIC(
+		FREQ_CLK : INTEGER := 100   -- clock frequency in MHz
+	);
     PORT(
          Clk            : IN  std_logic;
          MReset         : IN  std_logic;
@@ -141,9 +147,13 @@ Clk <= CLOCK;
 	 
 ----------------------------------------------- 
  
-   c_SpW: CodecSpWXNSEE2 PORT MAP (
-        Clk           => Clk,
-        MReset        => MReset,
+   c_SpW: CodecSpWXNSEE2 
+	GENERIC MAP(
+		  FREQ_CLK => 50 
+		  )
+	PORT MAP (
+        Clk           => Clk, 
+        MReset        => RESET,
         LinkStart     => LinkStart,
         LinkDisable   => LinkDisable,
         AutoStart     => AutoStart,
@@ -165,10 +175,10 @@ Clk <= CLOCK;
         );
 
 
-	PROCESS (CLOCK) -- Processo para iniciar a conexão (CRIADO PARA USO NA SIMULAÇÃO)
+	PROCESS (Clk) -- Processo para iniciar a conexão (CRIADO PARA USO NA SIMULAÇÃO)
         variable delay_inicial : integer := 0;
 	begin
-        if (rising_edge(CLOCK)) then
+        if (rising_edge(Clk)) then
 		
             if (110 >= delay_inicial) then
                 delay_inicial := delay_inicial + 1;
@@ -186,11 +196,11 @@ Clk <= CLOCK;
 	end PROCESS;
 	
 	
-	PROCESS (CLOCK)
+	PROCESS (Clk)
 	begin
 		if (EstadoInterno(9) = '0') then
 			estado_codec <= estado_desativado;
-		elsif	(rising_edge(CLOCK)) then
+		elsif	(rising_edge(Clk)) then
 			case estado_codec is
 				
             when estado_desativado =>
@@ -241,54 +251,60 @@ Clk <= CLOCK;
 		
             when estado_desativado => 
                 TX_Write <= '0';
+                LED(1) <= '1'; -- Exibir status "estado_desativado".
 				  
             when estado_inicia =>
                 TX_Write <= '0';
-				  
+                LED(1) <='0';
+					 
             when estado_espera =>
                 TX_Write <= '0';
                 TX_Data  <= std_logic_vector(to_unsigned(somador, TX_Data'length));
 				
             when estado_escreve =>
                 TX_Write <= '1';
+				
 				  
 		end case;		  
 	end PROCESS;
 
    
-Din <= Dout;
-Sin <= Sout;
+--Din <= Dout;
+--Sin <= Sout;
 
----------------------------------------------------------------------------------
----- Lvds J1
----------------------------------------------------------------------------------
---  OBUFDS_INSTANCE_LVDSd : OBUFDS port map
---    (
---      O  => LVDS_DOUT_p,
---      OB => LVDS_DOUT_n,
---      I  => DOut
---      );
---	  
---  OBUFDS_INSTANCE_LVDSs : OBUFDS port map
---    (
---      O  => LVDS_SOUT_p,
---      OB => LVDS_SOUT_n,
---      I  => Sout
---      );
---	  
---  IBUFDS_inst_d : IBUFDS port map
---    (
---      O  => Din,
---      I  => LVDS_DIN_p,
---      IB => LVDS_DIN_n
---      );
---	  
---  IBUFDS_inst_s : IBUFDS port map
---    (
---      O  => Sin,
---      I  => LVDS_SIN_p,
---      IB => LVDS_SIN_n
---      );	
+LED(2) <= TX_Write; -- Exibir status do sinal que manda escrever (TX_Write).
+LED(3) <= EstadoInterno(9); -- Exibir status do estado "running".
+
+-------------------------------------------------------------------------------
+-- Lvds J1
+-------------------------------------------------------------------------------
+  OBUFDS_INSTANCE_LVDSd : OBUFDS port map
+    (
+      O  => LVDS_DOUT_p,
+      OB => LVDS_DOUT_n,
+      I  => DOut
+      );
+	  
+  OBUFDS_INSTANCE_LVDSs : OBUFDS port map
+    (
+      O  => LVDS_SOUT_p,
+      OB => LVDS_SOUT_n,
+      I  => Sout
+      );
+	  
+  IBUFDS_inst_d : IBUFDS port map
+    (
+      O  => Din,
+      I  => LVDS_DIN_p,
+      IB => LVDS_DIN_n
+      );
+	  
+  IBUFDS_inst_s : IBUFDS port map
+    (
+      O  => Sin,
+      I  => LVDS_SIN_p,
+      IB => LVDS_SIN_n
+      );	
 
 end Behavioral;
 

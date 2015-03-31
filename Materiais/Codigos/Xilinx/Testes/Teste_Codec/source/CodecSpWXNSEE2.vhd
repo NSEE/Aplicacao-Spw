@@ -8,8 +8,11 @@ use ieee.numeric_std.all;
 
 
 
-entity CodecSpWXNSEE2 is port
-(
+entity CodecSpWXNSEE2 is 
+GENERIC(
+	FREQ_CLK : INTEGER := 100   -- clock frequency in MHz
+);
+port(
 	-- external inputs of all the CODEC (ECSS-E-50-12C)
    -- general inputs
    Clk   : in std_logic;   -- clock input (frequencia a definir)
@@ -79,7 +82,6 @@ architecture behaviour of CodecSpWXNSEE2 is
 	signal EnableRX : std_logic;   -- on '1' enable RX and on '0' disable RX
 	signal LinkEnabled : std_logic;   -- on '1' indicates that the link can begin to work
    -- timer parts
-	CONSTANT FREQ_CLK : INTEGER := 100;   -- clock frequency in MHz
 	CONSTANT N_6v4 : INTEGER := 640;   -- FREQ_CLK * 6,4
 	CONSTANT N_12v8 : INTEGER := 1280;   -- FREQ_CLK * 12,8
    signal Timer6v4_count : INTEGER RANGE 4095 DOWNTO 0;   -- count the ticks for timer 6v4
