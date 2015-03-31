@@ -272,7 +272,8 @@ Clk <= CLOCK;
 --Din <= Dout;
 --Sin <= Sout;
 
-LED(2) <= TX_Write; -- Exibir status do sinal que manda escrever (TX_Write).
+--LED(2) <= TX_Write; -- Exibir status do sinal que manda escrever (TX_Write).
+LED(2) <= '1'; -- Status para saber se o programa está rodando na fpga.
 LED(3) <= EstadoInterno(9); -- Exibir status do estado "running".
 
 -------------------------------------------------------------------------------
