@@ -149,11 +149,11 @@ Clk <= CLOCK;
  
    c_SpW: CodecSpWXNSEE2 
 	GENERIC MAP(
-		  FREQ_CLK => 50 
+		  FREQ_CLK => 100 
 		  )
 	PORT MAP (
         Clk           => Clk, 
-        MReset        => RESET,
+        MReset        => not(RESET), -- Reset da placa é invertido
         LinkStart     => LinkStart,
         LinkDisable   => LinkDisable,
         AutoStart     => AutoStart,
@@ -198,64 +198,67 @@ Clk <= CLOCK;
 	
 	PROCESS (Clk)
 	begin
-		if (EstadoInterno(9) = '0') then
+		
+		if	(rising_edge(Clk)) then
+		
+			if (EstadoInterno(9) = '0') then
 			estado_codec <= estado_desativado;
-		elsif	(rising_edge(Clk)) then
-			case estado_codec is
-				
-            when estado_desativado =>
-                if (EstadoInterno(9) = '1') then -- verifica se conexão está em "running"
-                    estado_codec <= estado_inicia; -- vai para estado_inicia
-                else
-                    contador <= 0;
-                    somador  <= 0;
-                    estado_codec <= estado_desativado; -- continua no estado desativado
-                end if;	
+			
+			else 
+				case estado_codec is
 					
-            when estado_inicia =>
-                if (contador < 5) then
-                    contador <= contador + 1;
-                    estado_codec <= estado_inicia; -- continua estado_inicia
-                else	
-                    if (contador = 5) then
-                        somador <= somador + 1;
-                        contador <= 0;
-                        estado_codec <= estado_espera; -- vai para estado_espera
-                    end if;	
-                end if;	
-					
-            when estado_espera =>
-                if (TX_Ready = '1') then --verifica se pode escrever dados na entrada
-                    estado_codec <= estado_escreve; -- vai para estado_escreve
-                else
-                    estado_codec <= estado_espera; -- continua estado_espera
-                end if;	
-					
-            when estado_escreve =>
-                if (TX_Ready = '1') then
-                    estado_codec <= estado_escreve;
-                else
-                    estado_codec <= estado_inicia;
-                    contador <= 1;
-                end if;	
-					
-			end case;
+				when estado_desativado =>
+					if (EstadoInterno(9) = '1') then -- verifica se conexão está em "running"
+						estado_codec <= estado_inicia; -- vai para estado_inicia
+					else
+						contador <= 0;
+						somador  <= 0;
+						estado_codec <= estado_desativado; -- continua no estado desativado
+					end if;	
+						
+				when estado_inicia =>
+					if (contador < 5) then
+						contador <= contador + 1;
+						estado_codec <= estado_inicia; -- continua estado_inicia
+					else	
+						if (contador = 5) then
+							somador <= somador + 1;
+							contador <= 0;
+							estado_codec <= estado_espera; -- vai para estado_espera
+						end if;	
+					end if;	
+						
+				when estado_espera =>
+					if (TX_Ready = '1') then --verifica se pode escrever dados na entrada
+						estado_codec <= estado_escreve; -- vai para estado_escreve
+					else
+						estado_codec <= estado_espera; -- continua estado_espera
+					end if;	
+						
+				when estado_escreve =>
+					if (TX_Ready = '1') then
+						estado_codec <= estado_escreve;
+					else
+						estado_codec <= estado_inicia;
+						contador <= 1;
+					end if;	
+						
+				end case;
+			end if;
 		end if;
 	end PROCESS;
 	
 	
 	
-	PROCESS (estado_codec)
+	PROCESS (estado_codec, somador)
 	begin
         case estado_codec is
 		
             when estado_desativado => 
                 TX_Write <= '0';
-                LED(1) <= '1'; -- Exibir status "estado_desativado".
 				  
             when estado_inicia =>
                 TX_Write <= '0';
-                LED(1) <='0';
 					 
             when estado_espera =>
                 TX_Write <= '0';
@@ -263,7 +266,6 @@ Clk <= CLOCK;
 				
             when estado_escreve =>
                 TX_Write <= '1';
-				
 				  
 		end case;		  
 	end PROCESS;
@@ -272,7 +274,7 @@ Clk <= CLOCK;
 --Din <= Dout;
 --Sin <= Sout;
 
---LED(2) <= TX_Write; -- Exibir status do sinal que manda escrever (TX_Write).
+LED(1) <= '0'; -- Status para saber se o programa está rodando na fpga.
 LED(2) <= '1'; -- Status para saber se o programa está rodando na fpga.
 LED(3) <= EstadoInterno(9); -- Exibir status do estado "running".
 
