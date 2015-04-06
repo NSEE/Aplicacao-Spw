@@ -39,16 +39,16 @@ entity vhd_Teste_Codec is
 			  LED   : out std_logic_vector(1 to 3); 
 			  
 			  -- Sinais LVDS
-					-- saídas
-					LVDS_DOUT_p : out std_logic;
-					LVDS_DOUT_n : out std_logic;
-					LVDS_SOUT_p : out std_logic;
-					LVDS_SOUT_n : out std_logic;
-					-- entradas
-					LVDS_DIN_p : in std_logic;
-					LVDS_DIN_n : in std_logic;
-					LVDS_SIN_p : in std_logic;
-					LVDS_SIN_n : in std_logic
+			  -- saídas
+				LVDS_DOUT_p : out std_logic;
+				LVDS_DOUT_n : out std_logic;
+				LVDS_SOUT_p : out std_logic;
+				LVDS_SOUT_n : out std_logic;
+				-- entradas
+				LVDS_DIN_p : in std_logic;
+				LVDS_DIN_n : in std_logic;
+				LVDS_SIN_p : in std_logic;
+				LVDS_SIN_n : in std_logic
 			 );
 end vhd_Teste_Codec;
 
@@ -106,6 +106,18 @@ architecture Behavioral of vhd_Teste_Codec is
          );
 	END COMPONENT;
 	----------------------------
+	
+	-- Component Double clock frequency (DCM)
+	COMPONENT clock_pll
+	PORT(
+		CLKIN_IN : IN std_logic;
+		RST_IN : IN std_logic;          
+		CLKIN_IBUFG_OUT : OUT std_logic;
+		CLK0_OUT : OUT std_logic;
+		LOCKED_OUT : OUT std_logic
+		);
+	END COMPONENT;
+	----------------------------
 
 	-- Inputs CodecSpWXNSEE2:
 	signal Clk           : std_logic :='0';
@@ -139,10 +151,21 @@ architecture Behavioral of vhd_Teste_Codec is
 	-- Estados:
 	type state_type is (estado_desativado, estado_inicia, estado_espera, estado_escreve); 
 	signal estado_codec : state_type;
+	
+	--
+	signal RESET_doubleclk : std_logic;
 	--------------------------------------------------------------------------------------
 begin
 
-Clk <= CLOCK;
+--Clk <= CLOCK;
+
+	Inst_clock_pll: clock_pll PORT MAP(
+		CLKIN_IN => CLOCK,
+		RST_IN => not(RESET),
+		CLKIN_IBUFG_OUT => OPEN,
+		CLK0_OUT => Clk,
+		LOCKED_OUT => RESET_doubleclk 
+	);
 
 	 
 ----------------------------------------------- 
@@ -153,7 +176,7 @@ Clk <= CLOCK;
 		  )
 	PORT MAP (
         Clk           => Clk, 
-        MReset        => not(RESET), -- Reset da placa é invertido
+        MReset        => RESET_doubleclk, -- Reset da placa é invertido
         LinkStart     => LinkStart,
         LinkDisable   => LinkDisable,
         AutoStart     => AutoStart,
@@ -274,7 +297,7 @@ Clk <= CLOCK;
 --Din <= Dout;
 --Sin <= Sout;
 
-LED(1) <= '0'; -- Status para saber se o programa está rodando na fpga.
+LED(1) <= '1'; -- Status para saber se o programa está rodando na fpga.
 LED(2) <= '1'; -- Status para saber se o programa está rodando na fpga.
 LED(3) <= EstadoInterno(9); -- Exibir status do estado "running".
 
