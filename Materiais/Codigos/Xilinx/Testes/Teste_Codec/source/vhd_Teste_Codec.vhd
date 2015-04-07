@@ -36,7 +36,7 @@ entity vhd_Teste_Codec is
            RESET : in  STD_LOGIC;
 			  
 			  -- Saida LEDS
-			  LED   : out std_logic_vector(1 to 3); 
+			  LED   : out std_logic_vector(1 to 3);
 			  
 			  -- Sinais LVDS
 			  -- saídas
@@ -111,9 +111,10 @@ architecture Behavioral of vhd_Teste_Codec is
 	COMPONENT clock_pll
 	PORT(
 		CLKIN_IN : IN std_logic;
-		RST_IN : IN std_logic;          
+		RST_IN : IN std_logic;  	
 		CLKIN_IBUFG_OUT : OUT std_logic;
 		CLK0_OUT : OUT std_logic;
+		CLK2X_OUT : OUT std_logic;
 		LOCKED_OUT : OUT std_logic
 		);
 	END COMPONENT;
@@ -161,9 +162,10 @@ begin
 
 	Inst_clock_pll: clock_pll PORT MAP(
 		CLKIN_IN => CLOCK,
-		RST_IN => not(RESET),
+		RST_IN =>not(RESET),
 		CLKIN_IBUFG_OUT => OPEN,
-		CLK0_OUT => Clk,
+		CLK0_OUT => OPEN,
+		CLK2X_OUT => Clk,
 		LOCKED_OUT => RESET_doubleclk 
 	);
 
@@ -176,7 +178,7 @@ begin
 		  )
 	PORT MAP (
         Clk           => Clk, 
-        MReset        => RESET_doubleclk, -- Reset da placa é invertido
+        MReset        => not(RESET_doubleclk), -- Reset da placa é invertido
         LinkStart     => LinkStart,
         LinkDisable   => LinkDisable,
         AutoStart     => AutoStart,
@@ -297,8 +299,17 @@ begin
 --Din <= Dout;
 --Sin <= Sout;
 
-LED(1) <= '1'; -- Status para saber se o programa está rodando na fpga.
-LED(2) <= '1'; -- Status para saber se o programa está rodando na fpga.
+	PROCESS(RESET_doubleclk)
+	begin
+		if (not(RESET_doubleclk)='1') then
+			LED(1) <= '1'; -- Status para saber se o programa está rodando na fpga.
+			LED(2) <= '1'; -- Status para saber se o programa está rodando na fpga.
+		else
+			LED(1) <= '0'; -- Status para saber se o programa está rodando na fpga.
+			LED(2) <= '0'; -- Status para saber se o programa está rodando na fpga.
+		end if;	
+	end PROCESS;
+
 LED(3) <= EstadoInterno(9); -- Exibir status do estado "running".
 
 -------------------------------------------------------------------------------
