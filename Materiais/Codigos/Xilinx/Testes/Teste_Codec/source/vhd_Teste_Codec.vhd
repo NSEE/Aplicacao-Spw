@@ -179,10 +179,10 @@ begin
 	PORT MAP (
         Clk           => Clk, 
         MReset        => not(RESET_doubleclk), -- Reset da placa é invertido
-        LinkStart     => LinkStart,
-        LinkDisable   => LinkDisable,
-        AutoStart     => AutoStart,
-        TX_Write      => TX_Write,
+        LinkStart     => '1',
+        LinkDisable   => '0',
+        AutoStart     => '1',
+        TX_Write      => '0',
         TX_Data       => TX_Data,
         Tick_IN       => Tick_IN,
         Time_IN       => Time_IN,
@@ -191,7 +191,7 @@ begin
         Buffer_Ready  => Buffer_Ready,
         DOut          => DOut,           --LVDS
         SOut          => SOut,           --LVDS
-        TX_Ready      => TX_Ready,
+        TX_Ready      => OPEN,
         Buffer_Write  => Buffer_Write,
         RX_Data       => RX_Data,
         Tick_OUT      => Tick_OUT,
@@ -199,111 +199,11 @@ begin
         EstadoInterno => EstadoInterno
         );
 
-
-	PROCESS (Clk) -- Processo para iniciar a conexão (CRIADO PARA USO NA SIMULAÇÃO)
-        variable delay_inicial : integer := 0;
-	begin
-        if (rising_edge(Clk)) then
-		
-            if (110 >= delay_inicial) then
-                delay_inicial := delay_inicial + 1;
-            end if;	
-			 
-            if (delay_inicial = 100) then
-                -- Comandos para inicializaçao do CodecSpWXNSEE2
-                LinkStart    <= '1';
-                LinkDisable  <= '0';
-                AutoStart    <= '1';
-                MReset       <= '0';
-            end if;
-			
-        end if;	
-	end PROCESS;
-	
-	
-	PROCESS (Clk)
-	begin
-		
-		if	(rising_edge(Clk)) then
-		
-			if (EstadoInterno(9) = '0') then
-			estado_codec <= estado_desativado;
-			
-			else 
-				case estado_codec is
-					
-				when estado_desativado =>
-					if (EstadoInterno(9) = '1') then -- verifica se conexão está em "running"
-						estado_codec <= estado_inicia; -- vai para estado_inicia
-					else
-						contador <= 0;
-						somador  <= 0;
-						estado_codec <= estado_desativado; -- continua no estado desativado
-					end if;	
-						
-				when estado_inicia =>
-					if (contador < 5) then
-						contador <= contador + 1;
-						estado_codec <= estado_inicia; -- continua estado_inicia
-					else	
-						if (contador = 5) then
-							somador <= somador + 1;
-							contador <= 0;
-							estado_codec <= estado_espera; -- vai para estado_espera
-						end if;	
-					end if;	
-						
-				when estado_espera =>
-					if (TX_Ready = '1') then --verifica se pode escrever dados na entrada
-						estado_codec <= estado_escreve; -- vai para estado_escreve
-					else
-						estado_codec <= estado_espera; -- continua estado_espera
-					end if;	
-						
-				when estado_escreve =>
-					if (TX_Ready = '1') then
-						estado_codec <= estado_escreve;
-					else
-						estado_codec <= estado_inicia;
-						contador <= 1;
-					end if;	
-						
-				end case;
-			end if;
-		end if;
-	end PROCESS;
-	
-	
-	
-	PROCESS (estado_codec, somador)
-	begin
-        case estado_codec is
-		
-            when estado_desativado => 
-                TX_Write <= '0';
-				  
-            when estado_inicia =>
-                TX_Write <= '0';
-					 
-            when estado_espera =>
-                TX_Write <= '0';
-                TX_Data  <= std_logic_vector(to_unsigned(somador, TX_Data'length));
-				
-            when estado_escreve =>
-                TX_Write <= '1';
-				  
-		end case;		  
-	end PROCESS;
-
-   
---Din <= Dout;
---Sin <= Sout;
-
 	PROCESS(RESET_doubleclk)
 	begin
 		if (not(RESET_doubleclk)='1') then
 			LED(1) <= '1'; -- Status para saber se o programa está rodando na fpga.
-			LED(2) <= '1'; -- Status para saber se o programa está rodando na fpga.
+			LED(2) <= '0'; -- Status para saber se o programa está rodando na fpga.
 		else
 			LED(1) <= '0'; -- Status para saber se o programa está rodando na fpga.
 			LED(2) <= '0'; -- Status para saber se o programa está rodando na fpga.
