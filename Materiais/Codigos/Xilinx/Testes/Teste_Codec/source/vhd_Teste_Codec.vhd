@@ -96,10 +96,10 @@ architecture Behavioral of vhd_Teste_Codec is
   signal din          : std_logic_vector(8 downto 0);
   
   -- Sinais externos 
-  signal spw_si : std_logic_vector(0 downto 0);
-  signal spw_so : std_logic_vector(0 downto 0);
-  signal spw_di,spw_di_aux : std_logic_vector(0 downto 0);
-  signal spw_do : std_logic_vector(0 downto 0);
+  signal spw_si : std_logic;
+  signal spw_so : std_logic;
+  signal spw_di : std_logic;
+  signal spw_do : std_logic;
  
   signal rst_n : std_logic := '0';
   
