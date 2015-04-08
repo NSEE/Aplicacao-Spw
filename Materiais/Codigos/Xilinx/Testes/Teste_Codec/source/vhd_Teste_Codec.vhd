@@ -139,15 +139,13 @@ architecture Behavioral of vhd_Teste_Codec is
 
 begin
 
---Clk <= CLOCK;
-
 	Inst_clock_pll: clock_pll PORT MAP(
 		CLKIN_IN => CLOCK,
-		RST_IN =>not(RESET),
+		RST_IN =>   not(RESET),
 		CLKIN_IBUFG_OUT => OPEN,
 		CLK0_OUT => OPEN,
-		CLK2X_OUT => Clk,
-		LOCKED_OUT => RESET_doubleclk 
+		CLK2X_OUT => Clk1,
+		LOCKED_OUT => rst_n 
 	);
 
 --======================--
@@ -155,7 +153,7 @@ begin
 --======================--
   codecC : entity Codec_Controller 
 	generic map(
-        sysfreq  		=> 150_000_000.0,
+        sysfreq  		=> 100_000_000.0,
         txclkfreq       => 100_000_000.0,
         rxfifosize_bits	=> 11,
         txfifosize_bits	=> 11
@@ -167,10 +165,10 @@ begin
 		nMainReset	=> rst_n,		
 
         -- Sinais externos LVDS
-        spw_si      => spw_si(0), 
-        spw_so 	    => spw_so(0),
-        spw_di      => spw_di(0),
-        spw_do	    => spw_do(0),
+        spw_si      => spw_si, 
+        spw_so 	    => spw_so,
+        spw_di      => spw_di,
+        spw_do	    => spw_do,
 
         -- Status CODEC + controller
         codec_status => codec_status,
@@ -199,9 +197,9 @@ begin
     );
 
 	 
-	PROCESS(RESET_doubleclk)
+	PROCESS(rst_n)
 	begin
-		if (not(RESET_doubleclk)='1') then
+		if (not(rst_n)='1') then
 			LED(1) <= '0'; -- Status para saber se o programa está rodando na fpga.
 			LED(2) <= '1'; -- Status para saber se o programa está rodando na fpga.
 		else
@@ -210,7 +208,7 @@ begin
 		end if;	
 	end PROCESS;
 
-LED(3) <= EstadoInterno(9); -- Exibir status do estado "running".
+LED(3) <= codec_status(4); -- Exibir status do estado "running".
 
 -------------------------------------------------------------------------------
 -- Lvds J1
@@ -219,26 +217,26 @@ LED(3) <= EstadoInterno(9); -- Exibir status do estado "running".
     (
       O  => LVDS_DOUT_p,
       OB => LVDS_DOUT_n,
-      I  => DOut
+      I  => spw_do
       );
 	  
   OBUFDS_INSTANCE_LVDSs : OBUFDS port map
     (
       O  => LVDS_SOUT_p,
       OB => LVDS_SOUT_n,
-      I  => Sout
+      I  => spw_so
       );
 	  
   IBUFDS_inst_d : IBUFDS port map
     (
-      O  => Din,
+      O  => spw_di,
       I  => LVDS_DIN_p,
       IB => LVDS_DIN_n
       );
 	  
   IBUFDS_inst_s : IBUFDS port map
     (
-      O  => Sin,
+      O  => spw_si,
       I  => LVDS_SIN_p,
       IB => LVDS_SIN_n
       );	

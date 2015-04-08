@@ -134,7 +134,7 @@ begin
 --======================--
   codecC : entity Codec_Controller 
 	generic map(
-        sysfreq  		=> 150_000_000.0,
+        sysfreq  		=> 100_000_000.0,
         txclkfreq       => 100_000_000.0,
         rxfifosize_bits	=> 11,
         txfifosize_bits	=> 11
