@@ -32,62 +32,79 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity vhd_Teste_Codec is
     Port ( -- Entradas Gerais
-           CLOCK : in  STD_LOGIC;
-           RESET : in  STD_LOGIC;
-			  
-			  -- Saida LEDS
-			  LED   : out std_logic_vector(1 to 3);
-			  
-			  -- Sinais LVDS
-			  -- saídas
-				LVDS_DOUT_p : out std_logic;
-				LVDS_DOUT_n : out std_logic;
-				LVDS_SOUT_p : out std_logic;
-				LVDS_SOUT_n : out std_logic;
-				-- entradas
-				LVDS_DIN_p : in std_logic;
-				LVDS_DIN_n : in std_logic;
-				LVDS_SIN_p : in std_logic;
-				LVDS_SIN_n : in std_logic
-			 );
+             CLOCK : in  STD_LOGIC;
+             RESET : in  STD_LOGIC;
+               
+             -- Saida LEDS
+             LED   : out std_logic_vector(1 to 3);
+              
+             -- Sinais LVDS
+             -- saídas
+             LVDS_DOUT_p : out std_logic;
+             LVDS_DOUT_n : out std_logic;
+             LVDS_SOUT_p : out std_logic;
+             LVDS_SOUT_n : out std_logic;
+                 -- entradas
+             LVDS_DIN_p : in std_logic;
+             LVDS_DIN_n : in std_logic;
+             LVDS_SIN_p : in std_logic;
+             LVDS_SIN_n : in std_logic
+         );
 end vhd_Teste_Codec;
 
 architecture Behavioral of vhd_Teste_Codec is
 
-	-- Component Declaration for the Unit Under Test (UUT)
-    COMPONENT CodecSpWXNSEE2
-	GENERIC(
-		FREQ_CLK : INTEGER := 100   -- clock frequency in MHz
-	);
-    PORT(
-         Clk            : IN  std_logic;
-         MReset         : IN  std_logic;
-         LinkStart      : IN  std_logic;
-         LinkDisable    : IN  std_logic;
-         AutoStart      : IN  std_logic;
-         TX_Write       : IN  std_logic;
-         TX_Data        : IN  std_logic_vector(8 downto 0);
-         Tick_IN        : IN  std_logic;
-         Time_IN        : IN  std_logic_vector(7 downto 0);
-         DIn            : IN  std_logic;
-         SIn            : IN  std_logic;
-         Buffer_Ready   : IN  std_logic;
-         DOut           : OUT  std_logic;
-         SOut           : OUT  std_logic;
-         TX_Ready       : OUT  std_logic;
-         Buffer_Write   : OUT  std_logic;
-         RX_Data        : OUT  std_logic_vector(8 downto 0);
-         Tick_OUT       : OUT  std_logic;
-         Time_OUT       : OUT  std_logic_vector(7 downto 0);
-         EstadoInterno  : OUT  std_logic_vector(9 downto 0) -- 0 --> '1'= "Disconnect Error"  | 5 --> '1'= "ErrorWait"
-                                                            -- 1 --> '1'= "Parity Error"      | 6 --> '1'= "Ready" 
-                                                            -- 2 --> '1'= "Escape Error"      | 7 --> '1'= "Started"
-                                                            -- 3 --> '1'= "Credit Error"      | 8 --> '1'= "Connecting"
-                                                            -- 4 --> '1'= "ErrorReset"        | 9 -> '1'= "Run"
+--===============--
+-- Clock 
+--===============--  
 
-        );
-    END COMPONENT;
-	 -------------------------------------------------------------------------------------------------------------
+  signal clk1 : std_logic := '0';
+	
+--===============--
+-- CODEC 
+--===============--  
+
+ -- Status CODEC
+  signal codec_status : std_logic_vector(7 downto 0);
+
+-- Controller Codec
+  signal codec_ctr    : std_logic_vector(7 downto 0) := "00000" & "011";    
+
+-- TX clk divid rate
+  signal txdivcnt     : std_logic_vector(7 downto 0) := (others => '0'); 
+
+-- Input TC
+  signal tick_in     : std_logic    := '0';
+  signal ctrl_in     : std_logic_vector(1 downto 0) := (others => '0');
+  signal time_in     : std_logic_vector(5 downto 0) := (others => '0');
+
+-- Output TC
+  signal tick_out    : std_logic;
+  signal ctrl_out    : std_logic_vector(1 downto 0);
+  signal time_out    : std_logic_vector(5 downto 0);	
+ 
+-- FIFO
+  
+  -- READ
+  signal empty        : std_logic;
+  signal nread        : std_logic;
+  signal dout         : std_logic_vector(8 downto 0);
+     
+  -- Output FIFO Write
+  signal nwrite       : std_logic;
+  signal full         : std_logic;
+  signal din          : std_logic_vector(8 downto 0);
+  
+  -- Sinais externos 
+  signal spw_si : std_logic_vector(0 downto 0);
+  signal spw_so : std_logic_vector(0 downto 0);
+  signal spw_di,spw_di_aux : std_logic_vector(0 downto 0);
+  signal spw_do : std_logic_vector(0 downto 0);
+ 
+  signal rst_n : std_logic := '0';
+  
+  signal counter : unsigned(8 downto 0) := (others => '0');
+
 
 	 -- Component LVDS Outputs
 	 COMPONENT OBUFDS PORT(
@@ -120,42 +137,6 @@ architecture Behavioral of vhd_Teste_Codec is
 	END COMPONENT;
 	----------------------------
 
-	-- Inputs CodecSpWXNSEE2:
-	signal Clk           : std_logic :='0';
-	signal MReset        : std_logic :='1';
-	signal LinkStart     : std_logic :='0';
-	signal LinkDisable   : std_logic :='1';
-	signal AutoStart     : std_logic :='0';
-	signal TX_Write      : std_logic :='0';
-	signal TX_Data       : std_logic_vector(8 downto 0) := (others => '0');
-	signal Tick_IN       : std_logic :='0';
-	signal Time_IN       : std_logic_vector(7 downto 0) := (others => '0');
-	signal DIn           : std_logic :='0';
-	signal SIn           : std_logic :='0';
-	signal Buffer_Ready  : std_logic :='0';
-	-------------------------------------------------------------------
-	
-	-- Outputs CodecSpWXNSEE2:
-	signal DOut          : std_logic;
-	signal SOut          : std_logic;
-	signal TX_Ready      : std_logic;
-	signal Buffer_Write  : std_logic;
-	signal RX_Data       : std_logic_vector(8 downto 0);
-	signal Tick_OUT      : std_logic;
-	signal Time_OUT      : std_logic_vector(7 downto 0);
-	signal EstadoInterno : std_logic_vector(9 downto 0);
-	------------------------------------------------------------------
-
-	signal somador       : integer := 0;
-	signal contador      : integer := 0;
-	
-	-- Estados:
-	type state_type is (estado_desativado, estado_inicia, estado_espera, estado_escreve); 
-	signal estado_codec : state_type;
-	
-	--
-	signal RESET_doubleclk : std_logic;
-	--------------------------------------------------------------------------------------
 begin
 
 --Clk <= CLOCK;
@@ -169,43 +150,62 @@ begin
 		LOCKED_OUT => RESET_doubleclk 
 	);
 
-	 
------------------------------------------------ 
- 
-   c_SpW: CodecSpWXNSEE2 
-	GENERIC MAP(
-		  FREQ_CLK => 100 
-		  )
-	PORT MAP (
-        Clk           => Clk, 
-        MReset        => not(RESET_doubleclk), -- Reset da placa é invertido
-        LinkStart     => '1',
-        LinkDisable   => '0',
-        AutoStart     => '1',
-        TX_Write      => '0',
-        TX_Data       => TX_Data,
-        Tick_IN       => Tick_IN,
-        Time_IN       => Time_IN,
-        DIn           => DIn,            --LVDS
-        SIn           => SIn,            --LVDS
-        Buffer_Ready  => Buffer_Ready,
-        DOut          => DOut,           --LVDS
-        SOut          => SOut,           --LVDS
-        TX_Ready      => OPEN,
-        Buffer_Write  => Buffer_Write,
-        RX_Data       => RX_Data,
-        Tick_OUT      => Tick_OUT,
-        Time_OUT      => Time_OUT,
-        EstadoInterno => EstadoInterno
-        );
+--======================--
+--  Codec + Controller
+--======================--
+  codecC : entity Codec_Controller 
+	generic map(
+        sysfreq  		=> 150_000_000.0,
+        txclkfreq       => 100_000_000.0,
+        rxfifosize_bits	=> 11,
+        txfifosize_bits	=> 11
+		)
+	port map(
 
+		-- Global
+		Clk_SpW		=> clk1,
+		nMainReset	=> rst_n,		
+
+        -- Sinais externos LVDS
+        spw_si      => spw_si(0), 
+        spw_so 	    => spw_so(0),
+        spw_di      => spw_di(0),
+        spw_do	    => spw_do(0),
+
+        -- Status CODEC + controller
+        codec_status => codec_status,
+        codec_ctr    => codec_ctr,
+        txdivcnt     => txdivcnt,
+
+        -- Input TC
+        tick_in     => tick_in,  
+        ctrl_in     => ctrl_in, 
+        time_in     => time_in, 
+
+        -- Output TC
+        tick_out   => tick_out,
+        ctrl_out   => ctrl_out,
+        time_out   => time_out,
+     
+        -- Output FIFO Write
+        nwrite     => nwrite,
+        full       => full,
+        din        => STD_LOGIC_VECTOR(counter),
+
+        -- Input FIFO READ
+        empty      => empty,
+        nread      => nread, 
+        dout       => dout
+    );
+
+	 
 	PROCESS(RESET_doubleclk)
 	begin
 		if (not(RESET_doubleclk)='1') then
-			LED(1) <= '1'; -- Status para saber se o programa está rodando na fpga.
-			LED(2) <= '0'; -- Status para saber se o programa está rodando na fpga.
-		else
 			LED(1) <= '0'; -- Status para saber se o programa está rodando na fpga.
+			LED(2) <= '1'; -- Status para saber se o programa está rodando na fpga.
+		else
+			LED(1) <= '1'; -- Status para saber se o programa está rodando na fpga.
 			LED(2) <= '0'; -- Status para saber se o programa está rodando na fpga.
 		end if;	
 	end PROCESS;
