@@ -46,7 +46,7 @@ entity Codec_Controller is
         txclkfreq:      real := 10_000_000.0;
 
         -- Selection of a receiver front-end implementation.
-        rximpl:         spw_implementation_type := impl_generic;
+        rximpl:         spw_implementation_type := impl_fast;
 
         -- Maximum number of bits received per system clock
         -- (must be 1 in case of impl_generic).
