@@ -87,11 +87,11 @@ architecture Behavioral of vhd_Teste_Codec is
   
   -- READ
   signal empty        : std_logic;
-  signal nread        : std_logic;
+  signal nread        : std_logic := '1';
   signal dout         : std_logic_vector(8 downto 0);
      
   -- Output FIFO Write
-  signal nwrite       : std_logic;
+  signal nwrite       : std_logic := '1';
   signal full         : std_logic;
   signal din          : std_logic_vector(8 downto 0);
   
