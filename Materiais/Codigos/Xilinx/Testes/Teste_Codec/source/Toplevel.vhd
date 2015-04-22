@@ -7,19 +7,19 @@ use work.all;
 
 entity TopSpwTeste is
 	generic (
-		freq_clock : real := 50_000_000.0;   -- MHz,
-		TB		   : boolean := false			
+		freq_clock : real := 100_000_000.0;   -- MHz,
+		TB	   : boolean := false			
 	);
 	port(
 		
 		-- IOs
-		OSC_50_BANK2 : in std_logic;
-		LED			 : out std_logic_vector(7 downto 0);
-		FAN_CTRL	 : out std_logic;
+		OSC_50_BANK2 	: in std_logic;
+		LED		: out std_logic_vector(7 downto 0);
+		FAN_CTRL	: out std_logic;
 		
 		-- Global
-		Clk_SpW		 : in std_logic;
-		CPU_RESET_n	 : in std_logic := '1';
+		Clk_SpW		: in std_logic;
+		CPU_RESET_n	: in std_logic := '1';
 		
 		-- Sync 
 		--Sync_6		 : in std_logic;
@@ -134,16 +134,16 @@ begin
 --======================--
   codecC : entity Codec_Controller 
 	generic map(
-        sysfreq  		=> 100_000_000.0,
+        sysfreq  	=> 100_000_000.0,
         txclkfreq       => 100_000_000.0,
         rxfifosize_bits	=> 11,
         txfifosize_bits	=> 11
 		)
 	port map(
 
-		-- Global
-		Clk_SpW		=> clk1,
-		nMainReset	=> rst_n,		
+	-- Global
+	Clk_SpW		=> clk1,
+	nMainReset	=> rst_n,		
 
         -- Sinais externos LVDS
         spw_si      => spw_si(0), 
