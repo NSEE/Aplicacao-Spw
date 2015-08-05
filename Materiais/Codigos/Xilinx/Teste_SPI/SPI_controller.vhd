@@ -56,22 +56,29 @@ begin
 				elsif (rising_edge (CLK)) then
 				    case state_ctrl is
 					     when s_waiting_data =>
-						      ACT_bit <= ACT(4);								
-						      if (ACT_bit = '1') then
+						      ACT_bit <= ACT(7);
+						      if (ACT_bit = '1') then --verifica se há dado a ser tratado.
+								    --ACT_bit = '1' : Tem dado a ser tratado. Passar para o próximo estado.
 								    state_ctrl <= s_send_data;
 								else
+								    --ACT_bit = '0' : Não tem dado a ser tratado. Continuar no mesmo estado.
 								    state_ctrl <= s_waiting_data;
 								end if;
 								
-						  when s_send_data =>
-                        state_ctrl <= s_sending_data;						  
+						  when s_send_data => --Estado de transição rápida.
+                        state_ctrl <= s_sending_data; --Ir para próximo estado.
 							
 					     when s_sending_data =>
-						      if (data_req = '1') then
-								    state_ctrl <= s_waiting_data;
+						      if (data_req = '1') then -- Verificar fim do processo de envio do dado ao D/A.
+								    --data_req = '1' : Transmissão do dado ao D/A foi concluída.
+								    state_ctrl <= s_next_data; --Ir para próximo estado.
 								else
-								    state_ctrl <= s_sending_data;
-								end if;	 
+								    --data_req = '0' : Aguardar término da transmissão do dado ao D/A.
+								    state_ctrl <= s_sending_data; --Continuar no mesmo estado.
+								end if;
+								
+                    when s_next_data => --Estado de transição rápida.
+                        state_ctrl <= s_waiting_data; --Ir para próximo estado (recomeçar ciclo).
 								
                 end case;
 					 
@@ -82,11 +89,17 @@ begin
 	 begin
 	     case state_ctrl is
 		      when s_waiting_data =>
-				    wren_m_c <= '0';
+				    wren_m_c     <= '0';
+					 DA_CH0_ack_o <= '0';
 				when s_send_data =>
-                wren_m_c <= '1';
+                wren_m_c     <= '1';
+					 DA_CH0_ack_o <= '0';
             when s_sending_data =>
-                wren_m_c <= '0';
+                wren_m_c     <= '0';
+					 DA_CH0_ack_o <= '0';
+				when s_next_data =>
+                wren_m_c     <= '0';
+                DA_CH0_ack_o <= '1';					 
         end case;
 	 end process;					 
 
