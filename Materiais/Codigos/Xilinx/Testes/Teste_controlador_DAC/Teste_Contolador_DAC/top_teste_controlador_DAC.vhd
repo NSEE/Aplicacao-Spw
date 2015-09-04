@@ -38,9 +38,16 @@ entity top_teste_controlador_DAC is
 			PREFETCH : positive := 2;
 			SPI_2X_CLK_DIV : positive := 5);
 			
-    Port ( CLOCK : in  STD_LOGIC;
+    Port ( --INPUTS
+	        CLOCK : in  STD_LOGIC;
            RESET : in  STD_LOGIC;
-           LED : out  STD_LOGIC_VECTOR (7 downto 0));
+			  --OUTPUTS
+			     --LEDS
+              LED : out  STD_LOGIC_VECTOR (7 downto 0);
+			     --DAC
+			     SCK : out STD_LOGIC;  -- Serial Clock DAC
+			     SDI : out STD_LOGIC;  -- MOSI DAC
+			     CS  : out STD_LOGIC); -- Chip Select DAC
 end top_teste_controlador_DAC;
 
 architecture Behavioral of top_teste_controlador_DAC is
@@ -210,6 +217,9 @@ begin
 			);  
 	
     clk <= clock;
+	 SDI <= spi_mosi_o;
+	 CS  <= spi_ssel_o;
+	 SCK <= spi_sck_o;
 	 
     process(clk, reset,nova_entrada) -- gera valores para answer
 	 variable angle : natural range 0 to 90 := 0;
