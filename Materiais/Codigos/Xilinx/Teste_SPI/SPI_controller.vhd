@@ -34,7 +34,7 @@ entity SPI_controller is
 	        data_req : in STD_LOGIC;
            CLK : in STD_LOGIC;
 			  RST_IN : in STD_LOGIC;
-			  ACT_edit : out STD_LOGIC_VECTOR (7 downto 0);
+			  DA_CH0_ack_o : out STD_LOGIC := '0';
            wren_m_c : out STD_LOGIC
 			  );
 end SPI_controller;
@@ -43,7 +43,7 @@ architecture Behavioral of SPI_controller is
 	signal ACT_bit : STD_LOGIC := '0';
 	
 	-- Build a type for the state machine
-	type state_type is (s_waiting_data, s_send_data, s_sending_data);
+	type state_type is (s_waiting_data, s_send_data, s_sending_data, s_next_data);
 	
 	signal state_ctrl : state_type;
 	
