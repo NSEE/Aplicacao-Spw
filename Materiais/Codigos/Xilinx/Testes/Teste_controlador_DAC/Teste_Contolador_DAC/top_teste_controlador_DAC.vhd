@@ -175,8 +175,25 @@ architecture Behavioral of top_teste_controlador_DAC is
 	
 	 signal clkdv : std_logic := '0';
     signal answer : integer range 0 to 4000 := 0;
+	 signal answer2 : integer range 0 to 4096 := 0;
 	 signal answer_vector : std_logic_vector(11 downto 0);
+	 signal answer2_vector : std_logic_vector(11 downto 0);
 	 signal nova_entrada : std_logic := '0';
+	 
+	 type memory_type is array (0 to 90) of std_logic_vector(6 downto 0);
+	 signal Seno : memory_type := 
+	 ("0000000","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX",-- 0 a 9
+	  "0010001","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX",--10 a 19
+	  "0100010","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX",--20 a 29
+	  "0110010","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX",--30 a 39
+	  "1000000","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX",--40 a 49
+	  "1001100","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX",--50 a 59
+	  "1010110","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX",--60 a 69
+	  "1011101","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX",--70 a 79
+	  "1100010","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX","XXXXXXX",--80 a 89
+	  "1100100"--90
+	 );
+	 
 begin
 
 	-- Instantiate the Unit Under Test (UUT)
@@ -292,7 +309,7 @@ begin
 					  -- LSB DATA ENDERECO 32:
 					  if ((espera > 40) and (60>= espera)) then
 					      reg_addr <= std_logic_vector(to_unsigned(32,7)); -- endereço 32: LSB DATA
-					      reg_dado_in <= answer_vector(7 downto 0);-- LSB DATA
+					      reg_dado_in <= answer2_vector(7 downto 0);-- LSB DATA
 					      reg_rw <= '0'; -- Comando de escrita
 					      if (espera = 50) then
 					          reg_en <= '1';
@@ -304,7 +321,7 @@ begin
 					  -- MSB DATA ENDERECO 31:
 					  if ((espera > 70) and (90>= espera)) then
 					      reg_addr <= std_logic_vector(to_unsigned(31,7)); -- endereço 31: MSB DATA
-					      reg_dado_in <= "1000" & answer_vector(11 downto 8);-- MSB DATA
+					      reg_dado_in <= "1000" & answer2_vector(11 downto 8);-- MSB DATA
 					      reg_rw <= '0'; -- Comando de escrita
 					      if (espera = 80) then
 					          reg_en <= '1';
@@ -319,8 +336,9 @@ begin
 				
 		  end if;	 
 		  answer <= 44*angle;
-		  --answer <= 44*40;
+		  answer2<= 40*(to_integer(unsigned(Seno(angle))));
 		  answer_vector <= std_logic_vector(to_unsigned(answer,12));
+		  answer2_vector <= std_logic_vector(to_unsigned(answer2,12));
 	 end process;
 	
 end Behavioral;
