@@ -114,6 +114,18 @@ architecture Behavioral of top_teste_controlador_DAC is
         );
     END COMPONENT;
 	 
+--	COMPONENT divide_clock
+--	PORT(
+--		CLKIN_IN : IN std_logic;
+--		RST_IN : IN std_logic;          
+--		CLKDV_OUT : OUT std_logic;
+--		CLKDV_OUT1 : OUT std_logic;
+--		CLKIN_IBUFG_OUT : OUT std_logic;
+--		CLK0_OUT : OUT std_logic;
+--		LOCKED_OUT : OUT std_logic
+--		);
+--	END COMPONENT;
+	 
 	 
 	-- Registrador sinais ------------------------------------------------------
 		--Inputs
@@ -161,8 +173,8 @@ architecture Behavioral of top_teste_controlador_DAC is
 		signal data_to_spi : std_logic_vector(N-1 downto 0);
 	----------------------------------------------------------------------------
 	
-	
-    signal answer : integer range 0 to 90 := 0;
+	 signal clkdv : std_logic := '0';
+    signal answer : integer range 0 to 4000 := 0;
 	 signal answer_vector : std_logic_vector(11 downto 0);
 	 signal nova_entrada : std_logic := '0';
 begin
@@ -216,10 +228,24 @@ begin
 			  data_to_spi => data_to_spi
 			);  
 	
+--	Inst_divide_clock: divide_clock PORT MAP(
+--		CLKIN_IN => clock,
+--		RST_IN => reset,
+--		CLKDV_OUT => open,
+--		CLKDV_OUT1 => clk,
+--		CLKIN_IBUFG_OUT => open,
+--		CLK0_OUT => open,
+--		LOCKED_OUT => open
+--	);
+	
+	 --clk<=clkdv;
     clk <= clock;
 	 SDI <= spi_mosi_o;
 	 CS  <= spi_ssel_o;
 	 SCK <= spi_sck_o;
+	 
+	 LED(7 downto 1) <= "1111000";
+	 LED(0) <= reset;
 	 
     process(clk, reset,nova_entrada) -- gera valores para answer
 	 variable angle : natural range 0 to 90 := 0;
@@ -293,6 +319,7 @@ begin
 				
 		  end if;	 
 		  answer <= 44*angle;
+		  --answer <= 44*40;
 		  answer_vector <= std_logic_vector(to_unsigned(answer,12));
 	 end process;
 	

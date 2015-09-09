@@ -55,12 +55,12 @@ architecture rtl of Reg_Geral is
     	
 			-- Clear bit 7 -> D/A CH0			|'1': Dado pronto para ser enviado. '0': Dado foi enviado.
 			if (DA_CH0_next = '1') then  -- Verifica se foi feito pedido do proximo dado.
-				MEM(to_integer(to_unsigned(ADDR_DA_0_MSB,MEM'length)))(7) <= '0';
+				MEM(to_integer(to_unsigned(ADDR_DA_0_MSB,7)))(7) <= '0';
 			end if;
 			
 			-- Clear bit 7 -> D/A CH1			|'1': Dado pronto para ser enviado. '0': Dado foi enviado.
 			if (DA_CH1_next = '1') then  -- Verifica se foi feito pedido do proximo dado.
-				MEM(to_integer(to_unsigned(ADDR_DA_1_MSB,MEM'length)))(7) <= '0';
+				MEM(to_integer(to_unsigned(ADDR_DA_1_MSB,7)))(7) <= '0';
 			end if;
 			
 			----- Escrita/leitura no registrador
@@ -82,11 +82,11 @@ architecture rtl of Reg_Geral is
 	end process;
   
 	-- D/A channel 0 dado
-	DA_CH0_dado <= MEM(to_integer(to_unsigned(ADDR_DA_0_CFG,MEM'length)))(3 downto 0) & MEM(to_integer(to_unsigned(ADDR_DA_0_MSB,MEM'length)))(3 downto 0) & MEM(to_integer(to_unsigned(ADDR_DA_0_LSB,MEM'length)));
-	DA_CH0_en   <= MEM(to_integer(to_unsigned(ADDR_DA_0_MSB,MEM'length)))(7);
+	DA_CH0_dado <= MEM(to_integer(to_unsigned(ADDR_DA_0_CFG,7)))(3 downto 0) & MEM(to_integer(to_unsigned(ADDR_DA_0_MSB,7)))(3 downto 0) & MEM(to_integer(to_unsigned(ADDR_DA_0_LSB,7)));
+	DA_CH0_en   <= MEM(to_integer(to_unsigned(ADDR_DA_0_MSB,7)))(7);
 	
 	-- D/A channel 1 dado
-	DA_CH1_dado <= MEM(to_integer(to_unsigned(ADDR_DA_1_CFG,MEM'length)))(3 downto 0) & MEM(to_integer(to_unsigned(ADDR_DA_1_MSB,MEM'length)))(3 downto 0) & MEM(to_integer(to_unsigned(ADDR_DA_1_LSB,MEM'length)));
-	DA_CH1_en   <= MEM(to_integer(to_unsigned(ADDR_DA_1_MSB,MEM'length)))(7);
+	DA_CH1_dado <= MEM(to_integer(to_unsigned(ADDR_DA_1_CFG,7)))(3 downto 0) & MEM(to_integer(to_unsigned(ADDR_DA_1_MSB,7)))(3 downto 0) & MEM(to_integer(to_unsigned(ADDR_DA_1_LSB,7)));
+	DA_CH1_en   <= MEM(to_integer(to_unsigned(ADDR_DA_1_MSB,7)))(7);
   
 end rtl;
