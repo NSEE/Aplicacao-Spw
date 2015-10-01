@@ -242,8 +242,8 @@ begin
         DA_CHA_ack_o => DA_CH0_next,
         wren_m_c => wren_i,
         DA_CHB_ack_o => DA_CH1_next,
-			  data_to_spi => data_to_spi
-			);  
+		data_to_spi => data_to_spi
+		);  
 	
 --	Inst_divide_clock: divide_clock PORT MAP(
 --		CLKIN_IN => clock,
@@ -256,7 +256,7 @@ begin
 --	);
 	
 	 --clk<=clkdv;
-    clk <= clock;
+     clk <= clock;
 	 SDI <= spi_mosi_o;
 	 CS  <= spi_ssel_o;
 	 SCK <= spi_sck_o;
@@ -284,7 +284,7 @@ begin
                 end if;						        
 				end if;	 
 				if counter = 100100 then -- Espera para indicar que tem nova entrada de dados.
-				    nova_entrada<= '1';
+				    nova_entrada <= '1';
 					 counter := 0;
 				end if;
 				
