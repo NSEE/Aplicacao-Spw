@@ -30,8 +30,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity ADC_Controller is
-	 Generic (
-			N : positive := 18);  -- 16bit serial word length is default
+	Generic (
+			N : positive := 18);  -- 18bit serial word length
     Port ( 	CLK : in  STD_LOGIC;
 			RST_IN : in  STD_LOGIC;
 			AD_CH0_data : in STD_LOGIC_VECTOR(N-1 downto 0) := (others => '0');
