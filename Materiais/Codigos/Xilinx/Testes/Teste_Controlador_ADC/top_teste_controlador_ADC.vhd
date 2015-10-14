@@ -32,7 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity top_teste_controlador_ADC is
     Generic (
-			N : positive := 18; -- 18bit serial word length
+			N : positive := 19; -- 19bit serial word length
 			CPOL : std_logic := '0';
 			CPHA : std_logic := '0';
 			PREFETCH : positive := 2;
@@ -45,9 +45,10 @@ entity top_teste_controlador_ADC is
            --LEDS
 				LED : out  STD_LOGIC_VECTOR (7 downto 0);
 		   --DAC
-				SCK : out STD_LOGIC;  -- Serial Clock DAC
-				SDI : out STD_LOGIC;  -- MOSI DAC
-				CS  : out STD_LOGIC); -- Chip Select DAC
+				SCK : out STD_LOGIC;  -- Serial Clock ADC
+				SDI : out STD_LOGIC;  -- MOSI ADC
+				SDO : in STD_LOGIC;  -- MISO ADC
+				CS  : out STD_LOGIC); -- Chip Select ADC
 end top_teste_controlador_ADC;
 
 architecture Behavioral of top_teste_controlador_ADC is
@@ -61,18 +62,26 @@ architecture Behavioral of top_teste_controlador_ADC is
         reg_dado_out : OUT  std_logic_vector(7 downto 0);
         reg_rw : IN  std_logic;
         reg_en : IN  std_logic;
-        DA_CH0_en : OUT  std_logic;
+        -- D/A converter signals
+		DA_CH0_en : OUT  std_logic;
         DA_CH0_next : IN  std_logic;
         DA_CH0_dado : OUT  std_logic_vector(15 downto 0);
         DA_CH1_en : OUT  std_logic;
         DA_CH1_next : IN  std_logic;
-        DA_CH1_dado : OUT  std_logic_vector(15 downto 0)
+        DA_CH1_dado : OUT  std_logic_vector(15 downto 0);
+		-- A/D converter signals
+		AD_CH0_en : out STD_LOGIC;
+		AD_CH0_next : in STD_LOGIC;
+		AD_CH0_dado : out STD_LOGIC_VECTOR(18 DOWNTO 0);
+		AD_CH1_en : out STD_LOGIC;
+		AD_CH1_next : in STD_LOGIC;
+		AD_CH1_dado : out STD_LOGIC_VECTOR(18 DOWNTO 0)
         );
     END COMPONENT;
 
     COMPONENT spi_master
     GENERIC(   
-        N : positive := 18;                                             -- 32bit serial word length is default
+        N : positive := 19;                                             -- 32bit serial word length is default
         CPOL : std_logic := '0';                                        -- SPI mode selection (mode 0 default)
         CPHA : std_logic := '0';                                        -- CPOL = clock polarity, CPHA = clock phase.
         PREFETCH : positive := 2;                                       -- prefetch lookahead cycles
@@ -98,7 +107,7 @@ architecture Behavioral of top_teste_controlador_ADC is
 	 
     COMPONENT ADC_controller
     GENERIC(   
-        N : positive := 18);  
+        N : positive := 19);  
     PORT(
 		CLK : in  STD_LOGIC;
 		RST_IN : in  STD_LOGIC;
@@ -137,13 +146,19 @@ architecture Behavioral of top_teste_controlador_ADC is
 		signal reg_en : std_logic := '0';
 		signal DA_CH0_next : std_logic := '0';
 		signal DA_CH1_next : std_logic := '0';
+		signal AD_CH0_next : std_logic := '0';
+		signal AD_CH1_next : std_logic := '0';
 
 		--Outputs
 		signal reg_dado_out : std_logic_vector(7 downto 0);
 		signal DA_CH0_en : std_logic;
-		signal DA_CH0_dado : std_logic_vector(N-1 downto 0);
+		signal DA_CH0_dado : std_logic_vector(15 downto 0);
 		signal DA_CH1_en : std_logic;
-		signal DA_CH1_dado : std_logic_vector(N-1 downto 0);
+		signal DA_CH1_dado : std_logic_vector(15 downto 0);
+		signal AD_CH0_en : std_logic;
+		signal AD_CH0_dado : std_logic_vector(18 downto 0);
+		signal AD_CH1_en : std_logic;
+		signal AD_CH1_dado : std_logic_vector(18 downto 0);
    ----------------------------------------------------------------------------
 	
    -- Spi_master sinais -------------------------------------------------------
@@ -174,10 +189,6 @@ architecture Behavioral of top_teste_controlador_ADC is
 	----------------------------------------------------------------------------
 	
 	 signal clkdv : std_logic := '0';
-    signal answer : integer range 0 to 4000 := 0;
-	 signal answer2 : integer range 0 to 4096 := 0;
-	 signal answer_vector : std_logic_vector(11 downto 0);
-	 signal answer2_vector : std_logic_vector(11 downto 0);
 	 signal nova_entrada : std_logic := '0';
 	 
 	 type memory_type is array (0 to 90) of std_logic_vector(6 downto 0);
@@ -194,6 +205,7 @@ architecture Behavioral of top_teste_controlador_ADC is
 	  "1100100"--90
 	 );
 	 
+	 signal Dontcare_s : std_logic_vector(13 downto 0) := "00000000000000";
 begin
 
 	-- Instantiate the Unit Under Test (UUT)
@@ -210,8 +222,14 @@ begin
           DA_CH0_dado => DA_CH0_dado,
           DA_CH1_en => DA_CH1_en,
           DA_CH1_next => DA_CH1_next,
-          DA_CH1_dado => DA_CH1_dado
-        );
+          DA_CH1_dado =>DA_CH1_dado,
+		  AD_CH0_en => AD_CH0_en,
+		  AD_CH0_next => AD_CH0_next,
+		  AD_CH0_dado => AD_CH0_dado,
+	      AD_CH1_en => AD_CH1_en,
+		  AD_CH1_next => AD_CH1_next,
+		  AD_CH1_dado => AD_CH1_dado
+		  );
 		
 	-- Instantiate the Unit Under Test 2 (UUT2)
     uut_spi_m: spi_master PORT MAP (
@@ -234,14 +252,14 @@ begin
 	uut_adc_ctrl: ADC_Controller PORT MAP (
 		CLK => clk,
         RST_IN => RST_IN,
-		DA_CHA_data => DA_CH0_dado,
-		DA_CHB_data => DA_CH1_dado,
-        ACTb_CHA => DA_CH0_en,
-        ACTb_CHB => DA_CH1_en,
+		AD_CH0_data => AD_CH0_dado,
+		AD_CH1_data => AD_CH1_dado,
+        ACTb_CH0 => AD_CH0_en,
+        ACTb_CH1 => AD_CH1_en,
         data_req => di_req_o,
-        DA_CHA_ack_o => DA_CH0_next,
+        AD_CH0_ack_o => AD_CH0_next,
         wren_m_c => wren_i,
-        DA_CHB_ack_o => DA_CH1_next,
+        AD_CH1_ack_o => AD_CH1_next,
 		data_to_spi => data_to_spi
 		);  
 	
@@ -255,91 +273,57 @@ begin
 --		LOCKED_OUT => open
 --	);
 	
-	 --clk<=clkdv;
-     clk <= clock;
-	 SDI <= spi_mosi_o;
-	 CS  <= spi_ssel_o;
-	 SCK <= spi_sck_o;
+	--clk<=clkdv;
+    clk <= clock;
+	SDI <= spi_mosi_o;
+	 spi_miso_i <= SDO;
+	CS  <= spi_ssel_o;
+	SCK <= spi_sck_o;
+	
+	
 	 
-	 LED(7 downto 1) <= "1111000";
-	 LED(0) <= reset;
-	 
-     process(clk, reset,nova_entrada) -- gera valores para answer
-	 variable angle : natural range 0 to 90 := 0;
-	 variable counter : natural range 0 to 101000 := 0;
-	 variable espera : natural range 0 to 100 := 0;
-	 begin
-	     if reset = '1' then
-		      counter := 0;
-				angle := 0;
-	     elsif rising_edge(clk) then
-		      if nova_entrada = '0' then
-		          counter := counter + 1;
-				end if;	 
-				if counter = 100000 then
-				    if (angle < 90) then
-					     angle := angle + 10;
-					 else
-					     angle := 0;	
-                end if;						        
-				end if;	 
-				if counter = 100100 then -- Espera para indicar que tem nova entrada de dados.
-				    nova_entrada <= '1';
-					 counter := 0;
+	process(clk, reset,nova_entrada) -- gera valores para answer
+	variable angle : natural range 0 to 90 := 0;
+	variable counter : natural range 0 to 101000 := 0;
+	variable espera : natural range 0 to 100 := 0;
+	begin
+		if reset = '1' then
+			counter := 0;
+			angle := 0;
+			LED(7 downto 0) <= "01010101";
+		elsif rising_edge(clk) then
+			LED(7 downto 0) <= do_o(7 downto 0);
+			if nova_entrada = '0' then
+				counter := counter + 1;
+			end if;
+			if counter = 100000 then
+				nova_entrada <= '1';
+				counter := 0;
+			end if;	
+			
+			if nova_entrada = '1' then
+				espera := espera + 1;
+				
+				-- ESCREVE CONFIGURAÇÃO DO A/D CANAL 0
+				if ((espera > 0) and (30 >= espera)) then
+					reg_addr <= std_logic_vector(to_unsigned(20,7)); -- endereço 20 (A/D CONFIG CANAL 0)
+					reg_dado_in <= "10001000"; -- Single/#Diff = 1 | D2 = X | D1 = 0 | D0 = 0
+					reg_rw <= '0'; -- Comando de escrita
+					if (espera = 10) then
+						reg_en <= '1';
+					end if;
+					if (espera = 20) then
+						reg_en <= '0';
+					end if;
+				end if;
+				-- FIM CONFIGURAÇÃO DO A/D CANAL 0	
+				if (espera = 300) then
+					espera := 0;
 				end if;
 				
-				if nova_entrada = '1' then
-				     espera := espera +1;
-				 
-					  -- CONFIGURAÇAO DO D/A CANAL 0
-					  if ((espera > 0) and (30>= espera)) then
-						  reg_addr <= std_logic_vector(to_unsigned(30,7)); -- endereço 30 (D/A CONFIG CANAL 0)
-						  reg_dado_in <= "00000011"; --#A/B = 0 | BUF = 0 | #GA = 1 | #SHUT = 1
-						  reg_rw <= '0'; -- Comando de escrita
-						  if (espera = 10) then
-								reg_en <= '1';
-						  end if;
-						  if (espera = 20) then
-								reg_en <= '0';
-						  end if;
-					  end if;	  
-					  -- FIM CONFIGURAÇAO DO D/A CANAL 0
-					  
-					  -- ESCREVER DADOS REGISTRADOR:
-					  -- LSB DATA ENDERECO 32:
-					  if ((espera > 40) and (60>= espera)) then
-					      reg_addr <= std_logic_vector(to_unsigned(32,7)); -- endereço 32: LSB DATA
-					      reg_dado_in <= answer2_vector(7 downto 0);-- LSB DATA
-					      reg_rw <= '0'; -- Comando de escrita
-					      if (espera = 50) then
-					          reg_en <= '1';
-					      end if;
-					      if (espera = 60) then
-					          reg_en <= '0';
-					      end if;
-					  end if;
-					  -- MSB DATA ENDERECO 31:
-					  if ((espera > 70) and (90>= espera)) then
-					      reg_addr <= std_logic_vector(to_unsigned(31,7)); -- endereço 31: MSB DATA
-					      reg_dado_in <= "1000" & answer2_vector(11 downto 8);-- MSB DATA
-					      reg_rw <= '0'; -- Comando de escrita
-					      if (espera = 80) then
-					          reg_en <= '1';
-					      end if;
-					      if (espera = 90) then
-					          reg_en <= '0';
-								 espera := 0;
-								 nova_entrada <= '0';
-					      end if;
-					  end if;   
-				end if;
-				
-		  end if;	 
-		  answer <= 44*angle;
-		  answer2<= 40*(to_integer(unsigned(Seno(angle))));
-		  answer_vector <= std_logic_vector(to_unsigned(answer,12));
-		  answer2_vector <= std_logic_vector(to_unsigned(answer2,12));
-	 end process;
+			end if;
+		end if;
+	end process;
 	
 end Behavioral;
 

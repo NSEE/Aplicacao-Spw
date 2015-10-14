@@ -31,7 +31,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity ADC_Controller is
 	Generic (
-			N : positive := 18);  -- 18bit serial word length
+			N : positive := 19);  -- 19bit serial word length
     Port ( 	CLK : in  STD_LOGIC;
 			RST_IN : in  STD_LOGIC;
 			AD_CH0_data : in STD_LOGIC_VECTOR(N-1 downto 0) := (others => '0');
@@ -43,7 +43,7 @@ entity ADC_Controller is
 			wren_m_c : out  STD_LOGIC;
 			AD_CH1_ack_o : out  STD_LOGIC;
 			data_to_spi : out STD_LOGIC_VECTOR(N-1 downto 0));
-end DAC_Controller;
+end ADC_Controller;
 
 architecture Behavioral of ADC_Controller is
 
@@ -92,7 +92,7 @@ begin
 								--Enviando/recebendo dado canal 0. Aguardar término. Continuar no estado de envio e recebimento.
 								state_ctrl_ADC <= s_sending_receiving_CH0;
 							end if;	
-						when s_next_verify_B =>
+						when s_verify_CH1 =>
 							--Transição rápida. (DA_CHA_ack_o = '0' --> DA_CHA_ack_o = '1').
 							state_ctrl_ADC <= s_waiting_CH1;								
 						when s_waiting_CH1 =>
@@ -158,12 +158,12 @@ begin
 				wren_m_c     <= '1';
 				AD_CH0_ack_o <= '0';
 				AD_CH1_ack_o <= '0';
-				Data_to_spi  <= DA_CH1_data;					 
-            when s_sending_reveiving_CH0 =>
+				Data_to_spi  <= AD_CH1_data;					 
+            when s_sending_receiving_CH0 =>
 				wren_m_c     <= '0';
 				AD_CH0_ack_o <= '0';
 				AD_CH1_ack_o <= '0';
-				Data_to_spi  <= DA_CH0_data;	 
+				Data_to_spi  <= AD_CH0_data;	 
             when s_sending_receiving_CH1 =>
 				wren_m_c     <= '0';
 				AD_CH0_ack_o <= '0';
