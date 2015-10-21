@@ -123,27 +123,52 @@ architecture Behavioral of vhd_Teste_Codec is
 	-- Inputs CodecSpWXNSEE2:
 	signal Clk           : std_logic :='0';
 	signal MReset        : std_logic :='1';
-	signal LinkStart     : std_logic :='0';
-	signal LinkDisable   : std_logic :='1';
-	signal AutoStart     : std_logic :='0';
-	signal TX_Write      : std_logic :='0';
-	signal TX_Data       : std_logic_vector(8 downto 0) := (others => '0');
-	signal Tick_IN       : std_logic :='0';
-	signal Time_IN       : std_logic_vector(7 downto 0) := (others => '0');
-	signal DIn           : std_logic :='0';
-	signal SIn           : std_logic :='0';
-	signal Buffer_Ready  : std_logic :='0';
+	-- Codec SpW 0
+	signal LinkStart0     : std_logic :='0';
+	signal LinkDisable0   : std_logic :='1';
+	signal AutoStart0    : std_logic :='0';
+	signal TX_Write0      : std_logic :='0';
+	signal TX_Data0       : std_logic_vector(8 downto 0) := (others => '0');
+	signal Tick_IN0       : std_logic :='0';
+	signal Time_IN0       : std_logic_vector(7 downto 0) := (others => '0');
+	signal DIn0           : std_logic :='0';
+	signal SIn0           : std_logic :='0';
+	signal Buffer_Ready0  : std_logic :='0';
 	-------------------------------------------------------------------
 	
 	-- Outputs CodecSpWXNSEE2:
-	signal DOut          : std_logic;
-	signal SOut          : std_logic;
-	signal TX_Ready      : std_logic;
-	signal Buffer_Write  : std_logic;
-	signal RX_Data       : std_logic_vector(8 downto 0);
-	signal Tick_OUT      : std_logic;
-	signal Time_OUT      : std_logic_vector(7 downto 0);
-	signal EstadoInterno : std_logic_vector(9 downto 0);
+	signal DOut0          : std_logic;
+	signal SOut0          : std_logic;
+	signal TX_Ready0      : std_logic;
+	signal Buffer_Write0  : std_logic;
+	signal RX_Data0       : std_logic_vector(8 downto 0);
+	signal Tick_OUT0     : std_logic;
+	signal Time_OUT0      : std_logic_vector(7 downto 0);
+	signal EstadoInterno0 : std_logic_vector(9 downto 0);
+	------------------------------------------------------------------
+	
+	--Codec SpW 1:
+	signal LinkStart1     : std_logic :='0';
+	signal LinkDisable1   : std_logic :='1';
+	signal AutoStart1     : std_logic :='0';
+	signal TX_Write1      : std_logic :='0';
+	signal TX_Data1       : std_logic_vector(8 downto 0) := (others => '0');
+	signal Tick_IN1      : std_logic :='0';
+	signal Time_IN1       : std_logic_vector(7 downto 0) := (others => '0');
+	signal DIn1           : std_logic :='0';
+	signal SIn1           : std_logic :='0';
+	signal Buffer_Ready1  : std_logic :='0';
+	-------------------------------------------------------------------
+	
+	-- Outputs CodecSpWXNSEE2:
+	signal DOut1          : std_logic;
+	signal SOut1          : std_logic;
+	signal TX_Ready1     : std_logic;
+	signal Buffer_Write1  : std_logic;
+	signal RX_Data1       : std_logic_vector(8 downto 0);
+	signal Tick_OUT1      : std_logic;
+	signal Time_OUT1      : std_logic_vector(7 downto 0);
+	signal EstadoInterno1 : std_logic_vector(9 downto 0);
 	------------------------------------------------------------------
 
 	signal somador       : integer := 0;
@@ -153,7 +178,7 @@ architecture Behavioral of vhd_Teste_Codec is
 	type state_type is (estado_desativado, estado_inicia, estado_espera, estado_escreve); 
 	signal estado_codec : state_type;
 	
-	type state_type_reading is (estado_leitura_desativado, estado_leitura_espera, estado_leitura_le);
+	type state_type_reading is (estado_leitura_desativado, estado_leitura_le, estado_leitura_escreve);
 	signal estado_codec_leitura : state_type_reading;
 	
 	--
@@ -176,33 +201,59 @@ RESET_doubleclk <= not(RESET);
 	 
 ----------------------------------------------- 
  
-   c_SpW: CodecSpWXNSEE2 
+   c_SpW_0: CodecSpWXNSEE2 
 	GENERIC MAP(
 		  FREQ_CLK => 100 
 		  )
 	PORT MAP (
         Clk           => Clk, 
         MReset        => not(RESET_doubleclk), -- Reset da placa é invertido
-        LinkStart     => LinkStart,
-        LinkDisable   => LinkDisable,
-        AutoStart     => AutoStart,
-        TX_Write      => TX_Write,
-        TX_Data       => TX_Data,
-        Tick_IN       => Tick_IN,
-        Time_IN       => Time_IN,
-        DIn           => DIn,            --LVDS
-        SIn           => SIn,            --LVDS
-        Buffer_Ready  => Buffer_Ready,
-        DOut          => DOut,           --LVDS
-        SOut          => SOut,           --LVDS
-        TX_Ready      => TX_Ready,
-        Buffer_Write  => Buffer_Write,
-        RX_Data       => RX_Data,
-        Tick_OUT      => Tick_OUT,
-        Time_OUT      => Time_OUT,
-        EstadoInterno => EstadoInterno
+        LinkStart     => LinkStart0,
+        LinkDisable   => LinkDisable0,
+        AutoStart     => AutoStart0,
+        TX_Write      => TX_Write0,
+        TX_Data       => TX_Data0,
+        Tick_IN       => Tick_IN0,
+        Time_IN       => Time_IN0,
+        DIn           => DIn0,            --LVDS
+        SIn           => SIn0,            --LVDS
+        Buffer_Ready  => Buffer_Ready0,
+        DOut          => DOut0,           --LVDS
+        SOut          => SOut0,           --LVDS
+        TX_Ready      => TX_Ready0,
+        Buffer_Write  => Buffer_Write0,
+        RX_Data       => RX_Data0,
+        Tick_OUT      => Tick_OUT0,
+        Time_OUT      => Time_OUT0,
+        EstadoInterno => EstadoInterno0
         );
 
+   c_SpW_1: CodecSpWXNSEE2 
+	GENERIC MAP(
+		  FREQ_CLK => 100 
+		  )
+	PORT MAP (
+        Clk           => Clk, 
+        MReset        => not(RESET_doubleclk), -- Reset da placa é invertido
+        LinkStart     => LinkStart1,
+        LinkDisable   => LinkDisable1,
+        AutoStart     => AutoStart1,
+        TX_Write      => TX_Write1,
+        TX_Data       => TX_Data1,
+        Tick_IN       => Tick_IN1,
+        Time_IN       => Time_IN1,
+        DIn           => DIn1,            --LVDS
+        SIn           => SIn1,            --LVDS
+        Buffer_Ready  => Buffer_Ready1,
+        DOut          => DOut1,           --LVDS
+        SOut          => SOut1,           --LVDS
+        TX_Ready      => TX_Ready1,
+        Buffer_Write  => Buffer_Write1,
+        RX_Data       => RX_Data1,
+        Tick_OUT      => Tick_OUT1,
+        Time_OUT      => Time_OUT1,
+        EstadoInterno => EstadoInterno1
+        );
 
 	PROCESS (Clk) -- Processo para iniciar a conexão (CRIADO PARA USO NA SIMULAÇÃO)
         variable delay_inicial : integer := 0;
@@ -215,30 +266,37 @@ RESET_doubleclk <= not(RESET);
 			 
             if (delay_inicial = 100) then
                 -- Comandos para inicializaçao do CodecSpWXNSEE2
-                LinkStart    <= '1';
-                LinkDisable  <= '0';
-                AutoStart    <= '1';
-                MReset       <= '0';
+					 MReset      <= '0';
+					 
+					 -- Codec SpW 0
+                LinkStart0    <= '1';
+                LinkDisable0  <= '0';
+                AutoStart0    <= '1';
+
+					 --Codec SpW 1
+					 LinkStart1    <= '1';
+                LinkDisable1  <= '0';
+                AutoStart1    <= '1';
             end if;
 			
         end if;	
 	end PROCESS;
 	
 	
-	-- PROCESSO DE ESCRITA -=-=-=-=-=-=--==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+	-- PROCESSO CODEC SpW 0 -=-=-=-=-=-=--==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 	PROCESS (Clk)
 	begin
 		
 		if	(rising_edge(Clk)) then
 		
-			if (EstadoInterno(9) = '0') then
+			if (EstadoInterno0(9) = '0') then
 			estado_codec <= estado_desativado;
 			
 			else 
 				case estado_codec is
 					
 				when estado_desativado =>
-					if (EstadoInterno(9) = '1') then -- verifica se conexão está em "running"
+					if (EstadoInterno0(9) = '1') then -- verifica se conexão está em "running"
 						estado_codec <= estado_inicia; -- vai para estado_inicia
 					else
 						contador <= 0;
@@ -259,14 +317,14 @@ RESET_doubleclk <= not(RESET);
 					end if;	
 						
 				when estado_espera =>
-					if (TX_Ready = '1') then --verifica se pode escrever dados na entrada
+					if (TX_Ready0 = '1') then --verifica se pode escrever dados na entrada
 						estado_codec <= estado_escreve; -- vai para estado_escreve
 					else
 						estado_codec <= estado_espera; -- continua estado_espera
 					end if;	
 						
 				when estado_escreve =>
-					if (TX_Ready = '1') then
+					if (TX_Ready0 = '1') then
 						estado_codec <= estado_escreve;
 					else
 						estado_codec <= estado_inicia;
@@ -284,82 +342,58 @@ RESET_doubleclk <= not(RESET);
         case estado_codec is
 		
             when estado_desativado => 
-                TX_Write <= '0';
+                TX_Write0 <= '0';
 				  
             when estado_inicia =>
-                TX_Write <= '0';
+                TX_Write0 <= '0';
 					 
             when estado_espera =>
-                TX_Write <= '0';
-                TX_Data  <= std_logic_vector(to_unsigned(somador, TX_Data'length));
+                TX_Write0 <= '0';
+                TX_Data0  <= std_logic_vector(to_unsigned(somador, TX_Data0'length));
 				
             when estado_escreve =>
-                TX_Write <= '1';
+                TX_Write0 <= '1';
 				  
 		end case;		  
 	end PROCESS;
 
 
--- PROCESSO DE LEITURA -=-=-=-==--=-=-=-=-=-=-=--=-=-=--=-==-=-=-=-=-=-=-=--=-=-=-=-
+-- PROCESSO CODEC SpW1-=-=-=-==--=-=-=-=-=-=-=--=-=-=--=-==-=-=-=-=-=-=-=--=-=-=-=-
 	PROCESS (Clk)
 	begin
 		if	(rising_edge(Clk)) then
 		
-			if (EstadoInterno(9) = '0') then
-				estado_codec_leitura <= estado_leitura_desativado;
-			
+			if (EstadoInterno1(9) = '0') then
+				Buffer_Ready1 <= '1';
+				TX_Write1 <= '0';
 			else 
-				case estado_codec_leitura is
-					
-				when estado_leitura_desativado =>
-					if (EstadoInterno(9) = '1') then -- verifica se conexão está em "running"
-						estado_codec_leitura <= estado_leitura_espera; -- vai para estado_inicia
+				if (EstadoInterno1(9) = '1') then
+					if Buffer_Write1 = '1' then --Pode ler?
+						Buffer_Ready1 <= '0'; --Entao le
+						TX_data1 <= RX_data1;
 					else
-						estado_codec_leitura <= estado_leitura_desativado; -- continua no estado desativado
-					end if;	
-				when estado_leitura_espera =>
-					if Buffer_Write = '1' then -- verifica se pode ler
-						estado_codec_leitura <= estado_leitura_le; --Se sim... então realiza o processo de leitura
-					else -- Se nao...
-						estado_codec_leitura <= estado_leitura_espera; --Se não... continua no estado de espera
-					end if;
-				when estado_leitura_le =>
-					if Buffer_Write = '0' then -- Verifica se já foi feita a leitura
-						estado_codec_leitura <= estado_leitura_escreve; -- Se Sim... Entao vai pro estado de espera
-					else -- Se não...
-						estado_codec_leitura <= estado_leitura_le; --Se nao... Continua no estado de leitura
+						Buffer_Ready1 <= '1';
 					end if;
 					
-					-- Até aqui leu. Agora escrever de volta.
-				when estado_leitura_escreve =>
-					estado_codec_leitura <= estado_leitura_espera;
+					if (TX_Ready1 = '1') then --Pode escrever?
+						TX_data1 <= RX_data1;
+						TX_Write1 <= '1'; --Entao escreve
+					else
+						TX_Write1 <= '0';
+					end if;	
+				end if;
 				
-				end case;	
 			end if;
 		
 		end if;
 	end PROCESS;
 	
-	PROCESS (estado_codec_leitura)
-	begin
-		case estado_codec_leitura is
-			when estado_leitura_desativado =>
-				Buffer_Ready <= '1';	
-
-			when estado_leitura_espera =>
-				Buffer_Ready <= '1'; -- Pede pra realizar leitura;
-				--Fica aguardando se pode ler na saida de dados (até obter buffer_write=1)
-			when estado_leitura_le =>
-				Buffer_Ready <= '0'; -- Pode Ler
-			when estado_leitura_escreve =>
-				TX_data <= RX_data;
-				TX_Write <= '1';
-		end case;
-	end PROCESS;
    
    
-Din <= Dout;
-Sin <= Sout;
+Din1 <= Dout0;
+Sin1 <= Sout0;
+Din0 <= Dout1;
+Sin0 <= Sout1;
 
 	PROCESS(RESET_doubleclk)
 	begin
@@ -372,38 +406,38 @@ Sin <= Sout;
 		end if;	
 	end PROCESS;
 
-LED(3) <= EstadoInterno(9); -- Exibir status do estado "running".
+LED(3) <= EstadoInterno1(9); -- Exibir status do estado "running".
 
 -------------------------------------------------------------------------------
 -- Lvds J1
 -------------------------------------------------------------------------------
-  OBUFDS_INSTANCE_LVDSd : OBUFDS port map
-    (
-      O  => LVDS_DOUT_p,
-      OB => LVDS_DOUT_n,
-      I  => DOut
-      );
-	  
-  OBUFDS_INSTANCE_LVDSs : OBUFDS port map
-    (
-      O  => LVDS_SOUT_p,
-      OB => LVDS_SOUT_n,
-      I  => Sout
-      );
-	  
-  IBUFDS_inst_d : IBUFDS port map
-    (
-      O  => Din,
-      I  => LVDS_DIN_p,
-      IB => LVDS_DIN_n
-      );
-	  
-  IBUFDS_inst_s : IBUFDS port map
-    (
-      O  => Sin,
-      I  => LVDS_SIN_p,
-      IB => LVDS_SIN_n
-      );	
+--  OBUFDS_INSTANCE_LVDSd : OBUFDS port map
+--    (
+--      O  => LVDS_DOUT_p,
+--      OB => LVDS_DOUT_n,
+--      I  => DOut1
+--      );
+--	  
+--  OBUFDS_INSTANCE_LVDSs : OBUFDS port map
+--    (
+--      O  => LVDS_SOUT_p,
+--      OB => LVDS_SOUT_n,
+--      I  => Sout1
+--      );
+--	  
+--  IBUFDS_inst_d : IBUFDS port map
+--    (
+--      O  => Din1,
+--      I  => LVDS_DIN_p,
+--      IB => LVDS_DIN_n
+--      );
+--	  
+--  IBUFDS_inst_s : IBUFDS port map
+--    (
+--      O  => Sin1,
+--      I  => LVDS_SIN_p,
+--      IB => LVDS_SIN_n
+--      );	
 
 end Behavioral;
 
