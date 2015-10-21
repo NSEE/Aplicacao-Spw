@@ -14,9 +14,9 @@ GENERIC(
 );
 port(
 	-- external inputs of all the CODEC (ECSS-E-50-12C)
-   -- general inputs
-   Clk   : in std_logic;   -- clock input (frequencia a definir)
-   MReset : in std_logic;   -- reset input for inicialization
+    -- general inputs
+    Clk   : in std_logic;   -- clock input (frequencia a definir)
+    MReset : in std_logic;   -- reset input for inicialization
 	-- inputs of the state machine
 	LinkStart : in std_logic;   -- Asks the initialization of the Link (2 ends of the Link)
 	LinkDisable : in std_logic;   -- Asks the disabling of the Link
@@ -24,33 +24,33 @@ port(
 	-- inputs of the transmitter
 	TX_Write : in std_logic;   -- controls the write of data/control by the host
 	TX_Data : in std_logic_vector(8 DOWNTO 0);   -- data bus or control bus from the host
-   Tick_IN : in std_logic;
+    Tick_IN : in std_logic;
 	Time_IN : in std_logic_vector(7 DOWNTO 0);
 	-- inputs of the receiver
-   DIn : in std_logic;   -- input D of the receiver
+    DIn : in std_logic;   -- input D of the receiver
 	SIn : in std_logic;   -- input S of the receiver
 	Buffer_Ready : in std_logic;
 
 	-- external outputs of all the CODEC (ECSS-E-50-12C)
 	-- outputs of the transmitter
-   DOut : out std_logic;   -- output D of the transmitter
+    DOut : out std_logic;   -- output D of the transmitter
 	SOut : out std_logic;   -- output S of the transmitter
-   TX_Ready : out std_logic;   -- indicates that the transmitter can be written by the host with a data or control
+    TX_Ready : out std_logic;   -- indicates that the transmitter can be written by the host with a data or control
 	-- outputs of the receiver
 	Buffer_Write : out std_logic;   -- controls the write of data/control on the host
 	RX_Data : out std_logic_vector(8 DOWNTO 0);   -- data bus or control bus to the host
-   Tick_OUT : out std_logic;
+    Tick_OUT : out std_logic;
 	Time_OUT : out std_logic_vector(7 DOWNTO 0);
-	EstadoInterno : out std_logic_vector(9 DOWNTO 0)   -- bit 0 --> '1' if "Disconnect Error"
-	                                                   -- bit 1 --> '1' if "Parity Error"
-																		-- bit 2 --> '1' if "Escape Error"
-																		-- bit 3 --> '1' if "Credit Error"
-																		-- bit 4 --> '1' if in state "ErrorReset"
-																		-- bit 5 --> '1' if in state "ErrorWait"
-																		-- bit 6 --> '1' if in state "Ready"
-																		-- bit 7 --> '1' if in state "Started"
-																		-- bit 8 --> '1' if in state "Connecting"
-																		-- bit 9 --> '1' if in state "Run"
+	EstadoInterno : out std_logic_vector(9 DOWNTO 0)   	-- bit 0 --> '1' if "Disconnect Error"
+														-- bit 1 --> '1' if "Parity Error"
+														-- bit 2 --> '1' if "Escape Error"
+														-- bit 3 --> '1' if "Credit Error"
+														-- bit 4 --> '1' if in state "ErrorReset"
+														-- bit 5 --> '1' if in state "ErrorWait"
+														-- bit 6 --> '1' if in state "Ready"
+														-- bit 7 --> '1' if in state "Started"
+														-- bit 8 --> '1' if in state "Connecting"
+														-- bit 9 --> '1' if in state "Run"
 );
 end entity CodecSpWXNSEE2;
 
@@ -58,16 +58,16 @@ architecture behaviour of CodecSpWXNSEE2 is
   
 	signal Reset : std_logic;   -- two cascaded register filtered Reset
 	signal Reset_F : std_logic;   -- one cascaded register filtered Reset
-   -- state machine parts
-   type st is (ErrorReset, ErrorWait, Ready, Started, Connecting, Run);   -- all possible states
-   signal Estado : st;   -- states
-   -- 
-   signal RunParaErrorReset : std_logic;
+	-- state machine parts
+    type st is (ErrorReset, ErrorWait, Ready, Started, Connecting, Run);   -- all possible states
+    signal Estado : st;   -- states
+    -- 
+    signal RunParaErrorReset : std_logic;
 	signal ConnectingParaErrorReset : std_logic;
-   signal StartedParaErrorReset : std_logic;
-   signal ReadyParaErrorReset : std_logic;
-   signal ErrorWaitParaErrorReset : std_logic;
-   --
+    signal StartedParaErrorReset : std_logic;
+    signal ReadyParaErrorReset : std_logic;
+    signal ErrorWaitParaErrorReset : std_logic;
+    --
 	signal SendNULLs : std_logic;   -- on '1' send NULLs
 	signal SendFCTs : std_logic;   -- on '1' send FCTs
 	signal SendNChars : std_logic;   -- on '1' send NChars
@@ -76,29 +76,29 @@ architecture behaviour of CodecSpWXNSEE2 is
 	signal SFCT : std_logic;   -- on '1' send a FCT
 	signal SNChar : std_logic;   -- on '1' send a NChar
 	signal STimeCode : std_logic;   -- on '1' send a TimeCode
-   signal EnableTimer6v4 : std_logic;   -- on '1' disparate the Timer 6v4, on '0' disables the timer 6v4
-   signal EnableTimer12v8 : std_logic;   -- on '1' disparate the Timer 12v8, on '0' disables the timer 12v8
+    signal EnableTimer6v4 : std_logic;   -- on '1' disparate the Timer 6v4, on '0' disables the timer 6v4
+    signal EnableTimer12v8 : std_logic;   -- on '1' disparate the Timer 12v8, on '0' disables the timer 12v8
 	signal EnableTX : std_logic;   -- on '1' enable TX and on '0' disable TX
 	signal EnableRX : std_logic;   -- on '1' enable RX and on '0' disable RX
 	signal LinkEnabled : std_logic;   -- on '1' indicates that the link can begin to work
-   -- timer parts
+    -- timer parts
 	CONSTANT N_6v4 : INTEGER := 640;   -- FREQ_CLK * 6,4
 	CONSTANT N_12v8 : INTEGER := 1280;   -- FREQ_CLK * 12,8
-   signal Timer6v4_count : INTEGER RANGE 4095 DOWNTO 0;   -- count the ticks for timer 6v4
-   signal Timer12v8_count : INTEGER RANGE 8191 DOWNTO 0;   -- count the ticks for timer 12v8
-   signal After6v4us : std_logic;   -- on '1' indicates that has passed 6,4us after start of timer 6v4
-   signal After12v8us : std_logic;   -- on '1' indicates that has passed 12,8us after start of timer 12v8
-   -- transmitter parts
-   signal SignalD : std_logic;   -- signal D of the transmitter
+    signal Timer6v4_count : INTEGER RANGE 4095 DOWNTO 0;   -- count the ticks for timer 6v4
+    signal Timer12v8_count : INTEGER RANGE 8191 DOWNTO 0;   -- count the ticks for timer 12v8
+    signal After6v4us : std_logic;   -- on '1' indicates that has passed 6,4us after start of timer 6v4
+    signal After12v8us : std_logic;   -- on '1' indicates that has passed 12,8us after start of timer 12v8
+    -- transmitter parts
+    signal SignalD : std_logic;   -- signal D of the transmitter
 	signal SignalS : std_logic;   -- signal S of the transmitter
---	CONSTANT SIZETXFifoMais8 : INTEGER := 64;   -- number of possibles positions in the TX fifo + 8
+    --CONSTANT SIZETXFifoMais8 : INTEGER := 64;   -- number of possibles positions in the TX fifo + 8
 	CONSTANT SIZETXFifoMais8 : INTEGER := 16;   -- number of possibles positions in the TX fifo + 8
-   signal CreditCountTX : INTEGER RANGE SIZETXFifoMais8 DOWNTO 0;   -- indicates how many NChars can be transmitted
-   signal TXCount : INTEGER RANGE 63 DOWNTO 0;   -- count the ticks for TX clock
---   signal TXClk : std_logic;   -- this is the TX clock for transmition (initialy it must be of 10MHz)
+    signal CreditCountTX : INTEGER RANGE SIZETXFifoMais8 DOWNTO 0;   -- indicates how many NChars can be transmitted
+    signal TXCount : INTEGER RANGE 63 DOWNTO 0;   -- count the ticks for TX clock
+    --   signal TXClk : std_logic;   -- this is the TX clock for transmition (initialy it must be of 10MHz)
 	CONSTANT N_TX : INTEGER := 9;   -- (FREQ_CLK * 0,1) - 1 (initial TX clock ticks)
 	CONSTANT N_TX100M : INTEGER := 0;   -- (FREQ_CLK * 0,01) - 1 (100Mbps TX clock ticks)
-   signal TXCountConstant : INTEGER RANGE 63 DOWNTO 0;   -- gives the step for the ticks for Tx clock
+    signal TXCountConstant : INTEGER RANGE 63 DOWNTO 0;   -- gives the step for the ticks for Tx clock
 	CONSTANT N_TXBit13 : INTEGER := 13;   -- word of 14 bits of size
 	CONSTANT N_TXBit12 : INTEGER := 12;   -- word of 13 bits of size
 	CONSTANT N_TXBit11 : INTEGER := 11;   -- word of 12 bits of size
@@ -113,50 +113,50 @@ architecture behaviour of CodecSpWXNSEE2 is
 	CONSTANT N_TXBit02 : INTEGER := 2;   -- word of 3 bits of size
 	CONSTANT N_TXBit01 : INTEGER := 1;   -- word of 2 bits of size
 	CONSTANT N_TXBit00 : INTEGER := 0;   -- positiond of the bit number 0
-   type TXst is (TXBit00, TXBit01, TXBit02, TXBit03, TXBit04, TXBit05, TXBit06, TXBit07, TXBit08, TXBit09, TXBit10, TXBit11, TXBit12, TXBit13, TXStopping, TXStopped);   -- all possible states of the TX serializer
-   signal TXEstado : TXst;   -- indicates the current states of the TX serializer
-   signal TXSizeInUse : TXst;   -- size of the word in use being sended
-   signal TXSizeNext : TXst;   -- size of the next word to be sent
-   signal TXWordInUse : std_logic_vector(N_TXBit13 DOWNTO N_TXBit00);   -- word in use being sended
-   signal TXWordNext : std_logic_vector(N_TXBit13 DOWNTO N_TXBit00);   -- next word to be sent
+    type TXst is (TXBit00, TXBit01, TXBit02, TXBit03, TXBit04, TXBit05, TXBit06, TXBit07, TXBit08, TXBit09, TXBit10, TXBit11, TXBit12, TXBit13, TXStopping, TXStopped);   -- all possible states of the TX serializer
+    signal TXEstado : TXst;   -- indicates the current states of the TX serializer
+    signal TXSizeInUse : TXst;   -- size of the word in use being sended
+    signal TXSizeNext : TXst;   -- size of the next word to be sent
+    signal TXWordInUse : std_logic_vector(N_TXBit13 DOWNTO N_TXBit00);   -- word in use being sended
+    signal TXWordNext : std_logic_vector(N_TXBit13 DOWNTO N_TXBit00);   -- next word to be sent
 	signal EnableTXDSOut : std_logic;   -- on '1' enable TXDSOut and on '0' disable TXDSOut
 	-- signal TXFirstTime : std_logic;   -- on '1' indicates the first time to send after the EnableTX
 	signal TXSemaphore : std_logic;   -- on '1' indicates the necessity of wait liberation to send another NULL, NChar, FCT, or TimeCode
 	signal SendNULLsFirstTime : std_logic;   -- indicates the current state of the SendNULLs process
 
-   signal ResultXor0706 : std_logic;   -- results of the partial XOR operation for parity
-   signal ResultXor0504 : std_logic;   -- results of the partial XOR operation for parity
-   signal ResultXor0302 : std_logic;   -- results of the partial XOR operation for parity
-   signal ResultXor0100 : std_logic;   -- results of the partial XOR operation for parity
-   signal ResultXor07060504 : std_logic;   -- results of the partial XOR operation for parity
-   signal ResultXor03020100 : std_logic;   -- results of the partial XOR operation for parity
-   signal ResultXorTotal : std_logic;   -- results of the partial XOR operation for parity
-   signal ParityContTXSizeInUse : std_logic;   -- results of the parity in the case of control
-   signal ParityDataTXSizeInUse : std_logic;   -- results of the parity in the case of data
+    signal ResultXor0706 : std_logic;   -- results of the partial XOR operation for parity
+    signal ResultXor0504 : std_logic;   -- results of the partial XOR operation for parity
+    signal ResultXor0302 : std_logic;   -- results of the partial XOR operation for parity
+    signal ResultXor0100 : std_logic;   -- results of the partial XOR operation for parity
+    signal ResultXor07060504 : std_logic;   -- results of the partial XOR operation for parity
+    signal ResultXor03020100 : std_logic;   -- results of the partial XOR operation for parity
+    signal ResultXorTotal : std_logic;   -- results of the partial XOR operation for parity
+    signal ParityContTXSizeInUse : std_logic;   -- results of the parity in the case of control
+    signal ParityDataTXSizeInUse : std_logic;   -- results of the parity in the case of data
 
-   -- FIFO transmitter parts
+    -- FIFO transmitter parts
 	CONSTANT SIZETXData : INTEGER := 9;   -- word of 9 bits of size (1 bit of control and 8 bits of data)
 	CONSTANT SIZETXPtr : INTEGER := 6;   -- word of 6 bits of size (possible from 0 to 63 positions)
 	CONSTANT SIZETXFifo : INTEGER := SIZETXFifoMais8 - 8;   -- number of possibles positions in the TX fifo
 	signal TXFifoFull : std_logic;   -- on '1' indicates that the TX FIFO is full
 	signal TXFifoEmpty : std_logic;   -- on '1' indicates that the TX FIFO is empty
-   type TXFifoType is array (0 to SIZETXFifo-1) of std_logic_vector(SIZETXData-1 downto 0);
-   signal TXFifo : TXFifoType :=(others => (others => '0'));   -- TX FIFO memory for queue.
-   --signal TXFifoReadPtr : std_logic_vector(SIZETXPtr-1 downto 0) := (others => '0');  -- TX FIFO read pointer.
-   --signal TXFifoWritePtr : std_logic_vector(SIZETXPtr-1 downto 0) := (others => '0');  -- TX FIFO write pointer.
-   signal TXFifoReadPtr : INTEGER RANGE SIZETXFifo-1 DOWNTO 0 := 0;  -- TX FIFO read pointer.
-   signal TXFifoWritePtr : INTEGER RANGE SIZETXFifo-1 DOWNTO 0 := 0;  -- TX FIFO write pointer.
-   signal TXFifoDeltaUsado : INTEGER RANGE SIZETXFifo DOWNTO 0 := 0;  -- TX FIFO delta usado (number of words written and NOT readed).
-   signal TXFifoDeltaNaoUsado : INTEGER RANGE SIZETXFifo DOWNTO 0 := SIZETXFifo;  -- TX FIFO delta NÃO usado (number of empty spaces).
-   type TXFifost is (TXFifoFirst, TXFifoSecond, TXFifoThird);   -- all possible TXFifo states
-   signal TXFifoEstado : TXFifost;   -- state of the TXFifo
-   -- TimeCode transmitter parts
-   signal Tick_IN_F : std_logic;   -- auxiliar Flag to get the rising edge of the signal Tick_IN
+    type TXFifoType is array (0 to SIZETXFifo-1) of std_logic_vector(SIZETXData-1 downto 0);
+    signal TXFifo : TXFifoType :=(others => (others => '0'));   -- TX FIFO memory for queue.
+    --signal TXFifoReadPtr : std_logic_vector(SIZETXPtr-1 downto 0) := (others => '0');  -- TX FIFO read pointer.
+    --signal TXFifoWritePtr : std_logic_vector(SIZETXPtr-1 downto 0) := (others => '0');  -- TX FIFO write pointer.
+    signal TXFifoReadPtr : INTEGER RANGE SIZETXFifo-1 DOWNTO 0 := 0;  -- TX FIFO read pointer.
+    signal TXFifoWritePtr : INTEGER RANGE SIZETXFifo-1 DOWNTO 0 := 0;  -- TX FIFO write pointer.
+    signal TXFifoDeltaUsado : INTEGER RANGE SIZETXFifo DOWNTO 0 := 0;  -- TX FIFO delta usado (number of words written and NOT readed).
+    signal TXFifoDeltaNaoUsado : INTEGER RANGE SIZETXFifo DOWNTO 0 := SIZETXFifo;  -- TX FIFO delta NÃO usado (number of empty spaces).
+    type TXFifost is (TXFifoFirst, TXFifoSecond, TXFifoThird);   -- all possible TXFifo states
+    signal TXFifoEstado : TXFifost;   -- state of the TXFifo
+    -- TimeCode transmitter parts
+    signal Tick_IN_F : std_logic;   -- auxiliar Flag to get the rising edge of the signal Tick_IN
 	signal Tick_IN_Borda : std_logic;   -- signal indicating that was passed by the rising edge when equal '1' and by the falling edge when equal '0'
-   signal Time_IN_Data : std_logic_vector(7 DOWNTO 0);   -- register to write internally the TimeCode
+    signal Time_IN_Data : std_logic_vector(7 DOWNTO 0);   -- register to write internally the TimeCode
 	
-   -- receiver parts	
-   signal RXClk : std_logic;   -- signal indicating a clock recovered from the signals DIn and SIn with an XOR operation
+    -- receiver parts	
+    signal RXClk : std_logic;   -- signal indicating a clock recovered from the signals DIn and SIn with an XOR operation
 	signal DisconnectError : std_logic;   -- RxErr part - on '1' indicates error
 	signal DisconnectErrorD : std_logic;   -- RxErr on D part - on '1' indicates error
 	signal DisconnectErrorS : std_logic;   -- RxErr on S part - on '1' indicates error
@@ -171,30 +171,30 @@ architecture behaviour of CodecSpWXNSEE2 is
 	signal GotFCT : std_logic;   -- GotFCT part - on '1' indicates that a FCT has arrived
 	-- signal GotFCT_F : std_logic;   -- answer to the GotFCT part
 	CONSTANT SIZERXFifoMais8 : INTEGER := 64;   -- number of possibles positions in the RX fifo + 8
-   signal CreditCountRX : INTEGER RANGE SIZERXFifoMais8 DOWNTO 0;   -- indicates how many NChars can be received
-   signal CreditCountRXmais8 : INTEGER RANGE SIZERXFifoMais8 DOWNTO 0;   -- indicates how many NChars can be received
+    signal CreditCountRX : INTEGER RANGE SIZERXFifoMais8 DOWNTO 0;   -- indicates how many NChars can be received
+    signal CreditCountRXmais8 : INTEGER RANGE SIZERXFifoMais8 DOWNTO 0;   -- indicates how many NChars can be received
    -- FIFO receiver parts	
 	CONSTANT SIZERXData : INTEGER := 9;   -- word of 9 bits of size (1 bit of control and 8 bits of data)
 	CONSTANT SIZERXPtr : INTEGER := 6;   -- word of 6 bits of size (possible from 0 to 63 positions)
 	CONSTANT SIZERXFifo : INTEGER := SIZERXFifoMais8 - 8;   -- number of possibles positions in the RX fifo
 	signal RXFifoFull : std_logic;   -- on '1' indicates that the RX FIFO is full
 	signal RXFifoEmpty : std_logic;   -- on '1' indicates that the RX FIFO is empty
-   type RXFifoType is array (0 to SIZERXFifo-1) of std_logic_vector(SIZERXData-1 downto 0);
-   signal RXFifo : RXFifoType :=(others => (others => '0'));   -- RX FIFO memory for queue.
-   --signal RXFifoReadPtr : std_logic_vector(SIZERXPtr-1 downto 0) := (others => '0');  -- RX FIFO read pointer.
-   --signal RXFifoWritePtr : std_logic_vector(SIZERXPtr-1 downto 0) := (others => '0');  -- RX FIFO write pointer.
-   signal RXFifoReadPtr : INTEGER RANGE SIZERXFifo-1 DOWNTO 0 := 0;  -- RX FIFO read pointer.
-   signal RXFifoWritePtr : INTEGER RANGE SIZERXFifo-1 DOWNTO 0 := 0;  -- RX FIFO write pointer.
-   signal RXFifoDeltaUsado : INTEGER RANGE SIZERXFifo DOWNTO 0 := 0;  -- RX FIFO delta usado (number of words written and NOT readed).
-   signal RXFifoDeltaNaoUsado : INTEGER RANGE SIZERXFifo DOWNTO 0 := SIZERXFifo;  -- RX FIFO delta NÃO usado (number of empty spaces).
-   type RXFifost is (RXFifoFirst, RXFifoSecond, RXFifoThird);   -- all possible RXFifo states
-   signal RXFifoEstado : RXFifost;   -- state of the RXFifo
-   -- parallelizer
-   signal RXCountD : INTEGER RANGE 1023 DOWNTO 0;   -- count the ticks for RX clock to use in the "disconect error on D"
-   signal RXCountS : INTEGER RANGE 1023 DOWNTO 0;   -- count the ticks for RX clock to use in the "disconect error on S"
---	CONSTANT N_RTX : INTEGER := 85;   -- number of tick clock's (using clk=100MHz)
+    type RXFifoType is array (0 to SIZERXFifo-1) of std_logic_vector(SIZERXData-1 downto 0);
+    signal RXFifo : RXFifoType :=(others => (others => '0'));   -- RX FIFO memory for queue.
+    --signal RXFifoReadPtr : std_logic_vector(SIZERXPtr-1 downto 0) := (others => '0');  -- RX FIFO read pointer.
+    --signal RXFifoWritePtr : std_logic_vector(SIZERXPtr-1 downto 0) := (others => '0');  -- RX FIFO write pointer.
+	signal RXFifoReadPtr : INTEGER RANGE SIZERXFifo-1 DOWNTO 0 := 0;  -- RX FIFO read pointer.
+	signal RXFifoWritePtr : INTEGER RANGE SIZERXFifo-1 DOWNTO 0 := 0;  -- RX FIFO write pointer.
+	signal RXFifoDeltaUsado : INTEGER RANGE SIZERXFifo DOWNTO 0 := 0;  -- RX FIFO delta usado (number of words written and NOT readed).
+	signal RXFifoDeltaNaoUsado : INTEGER RANGE SIZERXFifo DOWNTO 0 := SIZERXFifo;  -- RX FIFO delta NÃO usado (number of empty spaces).
+	type RXFifost is (RXFifoFirst, RXFifoSecond, RXFifoThird);   -- all possible RXFifo states
+	signal RXFifoEstado : RXFifost;   -- state of the RXFifo
+	-- parallelizer
+	signal RXCountD : INTEGER RANGE 1023 DOWNTO 0;   -- count the ticks for RX clock to use in the "disconect error on D"
+	signal RXCountS : INTEGER RANGE 1023 DOWNTO 0;   -- count the ticks for RX clock to use in the "disconect error on S"
+	--	CONSTANT N_RTX : INTEGER := 85;   -- number of tick clock's (using clk=100MHz)
 	CONSTANT N_RTX : INTEGER := 85;   -- number of tick clock's (using clk=10MHz)   -- to aprox. to 850ns
-   signal RXClk_F : std_logic;   -- auxiliary flag to see the changes of the signal RXClk
+	signal RXClk_F : std_logic;   -- auxiliary flag to see the changes of the signal RXClk
 	CONSTANT N_RXBit13 : INTEGER := 13;   -- word of 14 bits of size
 	CONSTANT N_RXBit12 : INTEGER := 12;   -- word of 13 bits of size
 	CONSTANT N_RXBit11 : INTEGER := 11;   -- word of 12 bits of size
@@ -209,18 +209,18 @@ architecture behaviour of CodecSpWXNSEE2 is
 	CONSTANT N_RXBit02 : INTEGER := 2;   -- word of 3 bits of size
 	CONSTANT N_RXBit01 : INTEGER := 1;   -- word of 2 bits of size
 	CONSTANT N_RXBit00 : INTEGER := 0;   -- positiond of the bit number 0
-   type RXst is (RXBit00, RXBit01, RXBit02, RXBit03, RXBit04, RXBit05, RXBit06, RXBit07, RXBit08, RXBit09, RXBit10, RXBit11, RXBit12, RXBit13);   -- all possible states of the RX parallelizer
-   signal RXEstado : RXst;   -- indicates the current states of the RX parallelizer
-   signal RXSizeInUse : RXst;   -- size of the word in use being received
-   signal RXSizeNext : RXst;   -- size of the next word to be received
-   signal RXWordInUse : std_logic_vector(N_RXBit13 DOWNTO N_RXBit00);   -- word in use being received
-   signal RXWordNext : std_logic_vector(N_RXBit13 DOWNTO N_RXBit00);   -- next word to be received
+	type RXst is (RXBit00, RXBit01, RXBit02, RXBit03, RXBit04, RXBit05, RXBit06, RXBit07, RXBit08, RXBit09, RXBit10, RXBit11, RXBit12, RXBit13);   -- all possible states of the RX parallelizer
+	signal RXEstado : RXst;   -- indicates the current states of the RX parallelizer
+	signal RXSizeInUse : RXst;   -- size of the word in use being received
+	signal RXSizeNext : RXst;   -- size of the next word to be received
+	signal RXWordInUse : std_logic_vector(N_RXBit13 DOWNTO N_RXBit00);   -- word in use being received
+	signal RXWordNext : std_logic_vector(N_RXBit13 DOWNTO N_RXBit00);   -- next word to be received
 	signal EnableRXDSIn : std_logic;   -- on '1' enable RXDSIn and on '0' disable RXDSIn
 	signal RXSemaphore : std_logic;   -- on '1' indicates that a NULL, NChar, FCT, or TimeCode was read and transferred to the register RXWordNext
 	signal RXSemaphore_F : std_logic;   -- auxiliary flag
 
-   signal DIn_F : std_logic;   -- auxiliary flag to see the changes of the signal DIn
-   signal SIn_F : std_logic;   -- auxiliary flag to see the changes of the signal SIn
+	signal DIn_F : std_logic;   -- auxiliary flag to see the changes of the signal DIn
+	signal SIn_F : std_logic;   -- auxiliary flag to see the changes of the signal SIn
 	signal RXAcumulatedXor : std_logic;   -- acumulates the XOR operation of the last word (control or data) received
 	signal RXParity : std_logic;   -- calculus of the parity of the new word (control or data) in process of receiving
 	

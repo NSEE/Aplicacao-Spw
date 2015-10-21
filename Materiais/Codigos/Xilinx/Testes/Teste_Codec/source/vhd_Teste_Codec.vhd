@@ -153,6 +153,9 @@ architecture Behavioral of vhd_Teste_Codec is
 	type state_type is (estado_desativado, estado_inicia, estado_espera, estado_escreve); 
 	signal estado_codec : state_type;
 	
+	type state_type_reading is (estado_leitura_desativado, estado_leitura_espera, estado_leitura_le);
+	signal estado_codec_leitura : state_type_reading;
+	
 	--
 	signal RESET_doubleclk : std_logic;
 	--------------------------------------------------------------------------------------
@@ -163,7 +166,7 @@ RESET_doubleclk <= not(RESET);
 
 --	Inst_clock_pll: clock_pll PORT MAP(
 --		CLKIN_IN => CLOCK,
---		RST_IN =>not(RESET),
+--		RST_IN => not(RESET),
 --		CLKIN_IBUFG_OUT => OPEN,
 --		CLK0_OUT => OPEN,
 --		CLK2X_OUT => Clk,
@@ -222,6 +225,7 @@ RESET_doubleclk <= not(RESET);
 	end PROCESS;
 	
 	
+	-- PROCESSO DE ESCRITA -=-=-=-=-=-=--==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 	PROCESS (Clk)
 	begin
 		
@@ -274,8 +278,7 @@ RESET_doubleclk <= not(RESET);
 		end if;
 	end PROCESS;
 	
-	
-	
+		
 	PROCESS (estado_codec, somador)
 	begin
         case estado_codec is
@@ -296,9 +299,67 @@ RESET_doubleclk <= not(RESET);
 		end case;		  
 	end PROCESS;
 
+
+-- PROCESSO DE LEITURA -=-=-=-==--=-=-=-=-=-=-=--=-=-=--=-==-=-=-=-=-=-=-=--=-=-=-=-
+	PROCESS (Clk)
+	begin
+		if	(rising_edge(Clk)) then
+		
+			if (EstadoInterno(9) = '0') then
+				estado_codec_leitura <= estado_leitura_desativado;
+			
+			else 
+				case estado_codec_leitura is
+					
+				when estado_leitura_desativado =>
+					if (EstadoInterno(9) = '1') then -- verifica se conexão está em "running"
+						estado_codec_leitura <= estado_leitura_espera; -- vai para estado_inicia
+					else
+						estado_codec_leitura <= estado_leitura_desativado; -- continua no estado desativado
+					end if;	
+				when estado_leitura_espera =>
+					if Buffer_Write = '1' then -- verifica se pode ler
+						estado_codec_leitura <= estado_leitura_le; --Se sim... então realiza o processo de leitura
+					else -- Se nao...
+						estado_codec_leitura <= estado_leitura_espera; --Se não... continua no estado de espera
+					end if;
+				when estado_leitura_le =>
+					if Buffer_Write = '0' then -- Verifica se já foi feita a leitura
+						estado_codec_leitura <= estado_leitura_escreve; -- Se Sim... Entao vai pro estado de espera
+					else -- Se não...
+						estado_codec_leitura <= estado_leitura_le; --Se nao... Continua no estado de leitura
+					end if;
+					
+					-- Até aqui leu. Agora escrever de volta.
+				when estado_leitura_escreve =>
+					estado_codec_leitura <= estado_leitura_espera;
+				
+				end case;	
+			end if;
+		
+		end if;
+	end PROCESS;
+	
+	PROCESS (estado_codec_leitura)
+	begin
+		case estado_codec_leitura is
+			when estado_leitura_desativado =>
+				Buffer_Ready <= '1';	
+
+			when estado_leitura_espera =>
+				Buffer_Ready <= '1'; -- Pede pra realizar leitura;
+				--Fica aguardando se pode ler na saida de dados (até obter buffer_write=1)
+			when estado_leitura_le =>
+				Buffer_Ready <= '0'; -- Pode Ler
+			when estado_leitura_escreve =>
+				TX_data <= RX_data;
+				TX_Write <= '1';
+		end case;
+	end PROCESS;
    
---Din <= Dout;
---Sin <= Sout;
+   
+Din <= Dout;
+Sin <= Sout;
 
 	PROCESS(RESET_doubleclk)
 	begin
