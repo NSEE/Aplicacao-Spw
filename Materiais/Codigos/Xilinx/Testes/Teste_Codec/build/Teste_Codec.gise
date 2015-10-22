@@ -34,47 +34,49 @@
   </files>
 
   <transforms xmlns="http://www.xilinx.com/XMLSchema">
-    <transform xil_pn:end_ts="1445448343" xil_pn:name="TRAN_copyInitialToAbstractSimulation" xil_pn:start_ts="1445448343">
+    <transform xil_pn:end_ts="1445543035" xil_pn:name="TRAN_copyInitialToAbstractSimulation" xil_pn:start_ts="1445543035">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1445541959" xil_pn:in_ck="-7136964471246323578" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1445541959">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="../source/CodecSpWXNSEE2.vhd"/>
-      <outfile xil_pn:name="../source/vhd_Teste_Codec.vhd"/>
-    </transform>
-    <transform xil_pn:end_ts="1445448343" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="3981790711959824102" xil_pn:start_ts="1445448343">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1445448343" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-8929804512189063852" xil_pn:start_ts="1445448343">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1445448343" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="-6679165462346264391" xil_pn:start_ts="1445448343">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1445541959" xil_pn:in_ck="-7136964471246323578" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1445541959">
+    <transform xil_pn:end_ts="1445543035" xil_pn:in_ck="-7136964471246323578" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1445543035">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="../source/CodecSpWXNSEE2.vhd"/>
       <outfile xil_pn:name="../source/vhd_Teste_Codec.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1445541965" xil_pn:in_ck="-7136964471246323578" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="2644519407510948871" xil_pn:start_ts="1445541959">
+    <transform xil_pn:end_ts="1445543035" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="3981790711959824102" xil_pn:start_ts="1445543035">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1445543035" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="-8929804512189063852" xil_pn:start_ts="1445543035">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1445543035" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="-6679165462346264391" xil_pn:start_ts="1445543035">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1445543035" xil_pn:in_ck="-7136964471246323578" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1445543035">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="../source/CodecSpWXNSEE2.vhd"/>
+      <outfile xil_pn:name="../source/vhd_Teste_Codec.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1445543039" xil_pn:in_ck="-7136964471246323578" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="2644519407510948871" xil_pn:start_ts="1445543035">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="fuse.log"/>
       <outfile xil_pn:name="isim"/>
+      <outfile xil_pn:name="isim.log"/>
       <outfile xil_pn:name="vhd_Teste_Codec_beh.prj"/>
       <outfile xil_pn:name="vhd_Teste_Codec_isim_beh.exe"/>
       <outfile xil_pn:name="xilinxsim.ini"/>
     </transform>
-    <transform xil_pn:end_ts="1445541966" xil_pn:in_ck="9061554610884854258" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="1823641898914163380" xil_pn:start_ts="1445541965">
+    <transform xil_pn:end_ts="1445543039" xil_pn:in_ck="9061554610884854258" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="1823641898914163380" xil_pn:start_ts="1445543039">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="isim.cmd"/>
+      <outfile xil_pn:name="isim.log"/>
       <outfile xil_pn:name="vhd_Teste_Codec_isim_beh.wdb"/>
     </transform>
   </transforms>

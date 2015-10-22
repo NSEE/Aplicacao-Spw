@@ -401,7 +401,9 @@ RESET_doubleclk <= not(RESET);
 		
 			if (EstadoInterno1(9) = '0') then
 				estado_codec1 <= estado_desativado1;
-			else 
+			else
+				Tick_in1 <= Tick_out1;
+				Time_in1 <= Time_out1;
 				case estado_codec1 is 
 					when estado_desativado1 =>
 						if Buffer_Write1 = '1' then --Pode ler?
@@ -441,9 +443,10 @@ RESET_doubleclk <= not(RESET);
 				Buffer_Ready1 <= '0'; -- Realiza a leitura.	 
             when estado_escreve1 =>
                 TX_Write1 <= '1'; -- Realiza a escrita
- 				Buffer_Ready1 <= '0'; -- Realiza a leitura.
+ 				Buffer_Ready1 <= '1';
 		end case;		  
 	end PROCESS;
+	
 	  
 Din1 <= Dout0;
 Sin1 <= Sout0;
