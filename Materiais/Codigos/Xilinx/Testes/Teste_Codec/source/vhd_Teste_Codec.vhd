@@ -157,7 +157,7 @@ architecture Behavioral of vhd_Teste_Codec is
 	signal Time_IN1       : std_logic_vector(7 downto 0) := (others => '0');
 	signal DIn1           : std_logic :='0';
 	signal SIn1           : std_logic :='0';
-	signal Buffer_Ready1  : std_logic :='0';
+	signal Buffer_Ready1  : std_logic :='1';
 	-------------------------------------------------------------------
 	
 	-- Outputs CodecSpWXNSEE2:
@@ -178,8 +178,8 @@ architecture Behavioral of vhd_Teste_Codec is
 	type state_type is (estado_desativado, estado_inicia, estado_espera, estado_escreve); 
 	signal estado_codec : state_type;
 	
-	type state_type_reading is (estado_leitura_desativado, estado_leitura_le, estado_leitura_escreve);
-	signal estado_codec_leitura : state_type_reading;
+	type state_type1 is (estado_desativado1, estado_leitura1, estado_escreve1);
+	signal estado_codec1 : state_type1;
 	
 	--
 	signal RESET_doubleclk : std_logic;
@@ -336,8 +336,8 @@ RESET_doubleclk <= not(RESET);
 		end if;
 	end PROCESS;
 	
-		
-	PROCESS (estado_codec, somador)
+	-- EESTADOS CODEC SpW0
+	PROCESS (estado_codec)
 	begin
         case estado_codec is
 		
@@ -357,30 +357,35 @@ RESET_doubleclk <= not(RESET);
 		end case;		  
 	end PROCESS;
 
+	--PROCESSO ENVIO DE TIMECODE CODEC SpW0
+	PROCESS (clk)
+	begin
+		if (rising_edge(clk)) then
+			if (somador = 10) or (somador = 30) or (somador = 50) then
+				Time_IN0 <= std_logic_vector(to_unsigned(15, Time_IN0'length));
+				Tick_IN0 <= '1';
+			else
+				Time_IN0 <= "00000000";
+				Tick_IN0 <= '0';			
+			end if;	
+		end if;
+	end PROCESS;
 
--- PROCESSO CODEC SpW1-=-=-=-==--=-=-=-=-=-=-=--=-=-=--=-==-=-=-=-=-=-=-=--=-=-=-=-
+
+-- PROCESSO LEITURA CODEC SpW0-=-=-=-==--=-=-=-=-=-=-=--=-=-=--=-==-=-=-=-=-=-=-=--=-=-=-=-
 	PROCESS (Clk)
 	begin
 		if	(rising_edge(Clk)) then
 		
-			if (EstadoInterno1(9) = '0') then
-				Buffer_Ready1 <= '1';
-				TX_Write1 <= '0';
+			if (EstadoInterno0(9) = '0') then
+				Buffer_Ready0 <= '1';
 			else 
-				if (EstadoInterno1(9) = '1') then
-					if Buffer_Write1 = '1' then --Pode ler?
-						Buffer_Ready1 <= '0'; --Entao le
-						TX_data1 <= RX_data1;
+				if (EstadoInterno0(9) = '1') then
+					if Buffer_Write0 = '1' then --Pode ler?
+						Buffer_Ready0 <= '0'; --Entao le
 					else
-						Buffer_Ready1 <= '1';
+						Buffer_Ready0 <= '1';
 					end if;
-					
-					if (TX_Ready1 = '1') then --Pode escrever?
-						TX_data1 <= RX_data1;
-						TX_Write1 <= '1'; --Entao escreve
-					else
-						TX_Write1 <= '0';
-					end if;	
 				end if;
 				
 			end if;
@@ -388,8 +393,58 @@ RESET_doubleclk <= not(RESET);
 		end if;
 	end PROCESS;
 	
-   
-   
+
+-- PROCESSO CODEC SpW1-=-=-=-==--=-=-=-=-=-=-=--=-=-=--=-==-=-=-=-=-=-=-=--=-=-=-=-
+	PROCESS (Clk)
+	begin
+		if	(rising_edge(Clk)) then
+		
+			if (EstadoInterno1(9) = '0') then
+				estado_codec1 <= estado_desativado1;
+			else 
+				case estado_codec1 is 
+					when estado_desativado1 =>
+						if Buffer_Write1 = '1' then --Pode ler?
+							estado_codec1 <= estado_leitura1; -- Vai para o estado de leitura.
+						else
+							estado_codec1 <= estado_desativado1;-- Espera permissao para leitura...
+						end if;
+					when estado_leitura1 =>
+						if (Buffer_Write1 = '0') and (TX_Ready1 = '1') then --Terminou a leitura e pode escrever?
+							TX_data1 <= RX_data1;
+							estado_codec1 <= estado_escreve1; -- Vai para o estado de escrita.
+						else
+							estado_codec1 <=  estado_leitura1;
+						end if;	
+					when estado_escreve1 =>
+						if (TX_Ready1 = '1') then
+							estado_codec1 <= estado_escreve1; -- Continua em estado de escrita até terminar (TX_Ready1 = '0').
+						else
+							estado_codec1 <= estado_desativado1;
+						end if;
+				end case;
+				
+			end if;
+		
+		end if;
+	end PROCESS;
+	
+	PROCESS (estado_codec1)
+	begin
+        case estado_codec1 is
+		
+            when estado_desativado1 => 
+                TX_Write1 <= '0';
+				Buffer_Ready1 <= '1'; -- Pede pra realizar leitura.
+            when estado_leitura1 =>
+                TX_Write1 <= '0';
+				Buffer_Ready1 <= '0'; -- Realiza a leitura.	 
+            when estado_escreve1 =>
+                TX_Write1 <= '1'; -- Realiza a escrita
+ 				Buffer_Ready1 <= '0'; -- Realiza a leitura.
+		end case;		  
+	end PROCESS;
+	  
 Din1 <= Dout0;
 Sin1 <= Sout0;
 Din0 <= Dout1;
