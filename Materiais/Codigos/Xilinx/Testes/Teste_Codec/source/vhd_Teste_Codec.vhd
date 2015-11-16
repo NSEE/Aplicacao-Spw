@@ -187,7 +187,7 @@ architecture Behavioral of vhd_Teste_Codec is
 begin
 
 --Clk <= CLOCK;
-RESET_doubleclk <= not(RESET);
+--RESET_doubleclk <= not(RESET);
 
 	Inst_clock_pll: clock_pll PORT MAP(
 		CLKIN_IN => CLOCK,

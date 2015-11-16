@@ -7,7 +7,7 @@
 -- \   \   \/     Version : 14.7
 --  \   \         Application : xaw2vhdl
 --  /   /         Filename : clock_pll.vhd
--- /___/   /\     Timestamp : 10/26/2015 18:07:39
+-- /___/   /\     Timestamp : 11/10/2015 17:56:32
 -- \   \  /  \ 
 --  \___\/\___\ 
 --
@@ -66,7 +66,7 @@ begin
             CLKFX_DIVIDE => 1,
             CLKFX_MULTIPLY => 4,
             CLKIN_DIVIDE_BY_2 => FALSE,
-            CLKIN_PERIOD => 10.000,
+            CLKIN_PERIOD => 20.000,
             CLKOUT_PHASE_SHIFT => "NONE",
             DCM_AUTOCALIBRATION => TRUE,
             DCM_PERFORMANCE_MODE => "MAX_SPEED",

@@ -22,7 +22,13 @@
   <sourceproject xmlns="http://www.xilinx.com/XMLSchema" xil_pn:fileType="FILE_XISE" xil_pn:name="Teste_Codec.xise"/>
 
   <files xmlns="http://www.xilinx.com/XMLSchema">
-    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_VHDL" xil_pn:name="clock_pll.vhd"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="_ngo"/>
+    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
+    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/xst.xmsgs"/>
+    <file xil_pn:fileType="FILE_VHDL" xil_pn:name="clock_pll.vhd">
+      <branch xil_pn:name="Implementation"/>
+      <branch xil_pn:name="BehavioralSim"/>
+    </file>
     <file xil_pn:fileType="FILE_VHDL_INSTTEMPLATE" xil_pn:name="clock_pll.vhi"/>
     <file xil_pn:fileType="FILE_UCF" xil_pn:name="clock_pll_arwz.ucf" xil_pn:origination="imported"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="fuse.log"/>
@@ -31,12 +37,29 @@
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="isim"/>
     <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_CMD" xil_pn:name="isim.cmd"/>
     <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_LOG" xil_pn:name="isim.log"/>
-    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="vhd_Teste_Codec_beh.prj"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="vhd_Teste_Codec.bld"/>
+    <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="vhd_Teste_Codec.cmd_log"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="vhd_Teste_Codec.lso"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="vhd_Teste_Codec.ngc"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGR" xil_pn:name="vhd_Teste_Codec.ngr"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="vhd_Teste_Codec.prj"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_STX" xil_pn:name="vhd_Teste_Codec.stx"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_REPORT" xil_pn:name="vhd_Teste_Codec.syr"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="vhd_Teste_Codec.xst"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="vhd_Teste_Codec_beh.prj"/>
+    <file xil_pn:fileType="FILE_HTML" xil_pn:name="vhd_Teste_Codec_envsettings.html"/>
     <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_ISIM_EXE" xil_pn:name="vhd_Teste_Codec_isim_beh.exe"/>
     <file xil_pn:fileType="FILE_ISIM_MISC" xil_pn:name="vhd_Teste_Codec_isim_beh.wdb"/>
-    <file xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="vhd_Teste_Codec_stx_beh.prj"/>
+    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="vhd_Teste_Codec_ngdbuild.xrpt"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="vhd_Teste_Codec_stx_beh.prj"/>
+    <file xil_pn:fileType="FILE_HTML" xil_pn:name="vhd_Teste_Codec_summary.html"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="vhd_Teste_Codec_vhdl.prj"/>
+    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="vhd_Teste_Codec_xst.xrpt"/>
+    <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="xaw2vhdl.log"/>
     <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_INI" xil_pn:name="xilinxsim.ini"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xlnx_auto_0_xdb"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xst"/>
   </files>
 
   <transforms xmlns="http://www.xilinx.com/XMLSchema">
@@ -44,13 +67,13 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1445890085" xil_pn:in_ck="-7136964471246323578" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1445890085">
+    <transform xil_pn:end_ts="1447186511" xil_pn:in_ck="-7136964471246323578" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1447186511">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="../source/CodecSpWXNSEE2.vhd"/>
       <outfile xil_pn:name="../source/vhd_Teste_Codec.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1445890085" xil_pn:in_ck="2088049069063272320" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="3981790711959824102" xil_pn:start_ts="1445890085">
+    <transform xil_pn:end_ts="1447186221" xil_pn:in_ck="2088049069063272320" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="3981790711959824102" xil_pn:start_ts="1447186221">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="clock_pll.vhd"/>
@@ -63,14 +86,14 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1445890085" xil_pn:in_ck="7999361241302759913" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1445890085">
+    <transform xil_pn:end_ts="1447186511" xil_pn:in_ck="7999361241302759913" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1447186511">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="../source/CodecSpWXNSEE2.vhd"/>
       <outfile xil_pn:name="../source/vhd_Teste_Codec.vhd"/>
       <outfile xil_pn:name="clock_pll.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1445890096" xil_pn:in_ck="7999361241302759913" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="2644519407510948871" xil_pn:start_ts="1445890085">
+    <transform xil_pn:end_ts="1447186521" xil_pn:in_ck="7999361241302759913" xil_pn:name="TRAN_ISimulateBehavioralModelRunFuse" xil_pn:prop_ck="2644519407510948871" xil_pn:start_ts="1447186511">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
@@ -82,7 +105,7 @@
       <outfile xil_pn:name="vhd_Teste_Codec_isim_beh.exe"/>
       <outfile xil_pn:name="xilinxsim.ini"/>
     </transform>
-    <transform xil_pn:end_ts="1445890096" xil_pn:in_ck="9061554610884854258" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="1823641898914163380" xil_pn:start_ts="1445890096">
+    <transform xil_pn:end_ts="1447186522" xil_pn:in_ck="9061554610884854258" xil_pn:name="TRAN_ISimulateBehavioralModel" xil_pn:prop_ck="1823641898914163380" xil_pn:start_ts="1447186521">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
@@ -90,6 +113,71 @@
       <outfile xil_pn:name="isim.cmd"/>
       <outfile xil_pn:name="isim.log"/>
       <outfile xil_pn:name="vhd_Teste_Codec_isim_beh.wdb"/>
+    </transform>
+    <transform xil_pn:end_ts="1447185391" xil_pn:name="TRAN_copyInitialToXSTAbstractSynthesis" xil_pn:start_ts="1447185391">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1447185391" xil_pn:name="TRAN_schematicsToHdl" xil_pn:prop_ck="12959441445734996" xil_pn:start_ts="1447185391">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1447185391" xil_pn:name="TRAN_regenerateCores" xil_pn:prop_ck="-6679165462346264391" xil_pn:start_ts="1447185391">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1447185391" xil_pn:name="TRAN_SubProjectAbstractToPreProxy" xil_pn:start_ts="1447185391">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1447185780" xil_pn:in_ck="2088049069063272320" xil_pn:name="TRAN_xawsTohdl" xil_pn:prop_ck="3981790711959824102" xil_pn:start_ts="1447185779">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="clock_pll.vhd"/>
+    </transform>
+    <transform xil_pn:end_ts="1447185393" xil_pn:name="TRAN_SubProjectPreToStructuralProxy" xil_pn:prop_ck="2044710901864835132" xil_pn:start_ts="1447185393">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1447185393" xil_pn:name="TRAN_platgen" xil_pn:prop_ck="7186202493732222659" xil_pn:start_ts="1447185393">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1447185855" xil_pn:in_ck="7999361241302759913" xil_pn:name="TRANEXT_xstsynthesize_virtex5" xil_pn:prop_ck="-7430463547355592831" xil_pn:start_ts="1447185780">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="WarningsGenerated"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="OutputChanged"/>
+      <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
+      <outfile xil_pn:name="vhd_Teste_Codec.lso"/>
+      <outfile xil_pn:name="vhd_Teste_Codec.ngc"/>
+      <outfile xil_pn:name="vhd_Teste_Codec.ngr"/>
+      <outfile xil_pn:name="vhd_Teste_Codec.prj"/>
+      <outfile xil_pn:name="vhd_Teste_Codec.stx"/>
+      <outfile xil_pn:name="vhd_Teste_Codec.syr"/>
+      <outfile xil_pn:name="vhd_Teste_Codec.xst"/>
+      <outfile xil_pn:name="vhd_Teste_Codec_beh.prj"/>
+      <outfile xil_pn:name="vhd_Teste_Codec_stx_beh.prj"/>
+      <outfile xil_pn:name="vhd_Teste_Codec_vhdl.prj"/>
+      <outfile xil_pn:name="vhd_Teste_Codec_xst.xrpt"/>
+      <outfile xil_pn:name="webtalk_pn.xml"/>
+      <outfile xil_pn:name="xst"/>
+    </transform>
+    <transform xil_pn:end_ts="1447185469" xil_pn:in_ck="2234482883426016975" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="155415256227463259" xil_pn:start_ts="1447185469">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1447185863" xil_pn:in_ck="-719691971436293704" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="3652500563664531916" xil_pn:start_ts="1447185855">
+      <status xil_pn:value="FailedRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <outfile xil_pn:name="_ngo"/>
+      <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
+      <outfile xil_pn:name="vhd_Teste_Codec.bld"/>
+      <outfile xil_pn:name="vhd_Teste_Codec_ngdbuild.xrpt"/>
     </transform>
   </transforms>
 
