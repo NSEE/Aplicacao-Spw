@@ -206,6 +206,8 @@ architecture Behavioral of top_teste_controlador_ADC is
 	 );
 	 
 	 signal Dontcare_s : std_logic_vector(13 downto 0) := "00000000000000";
+	 signal tensao : integer range 0 to 4096;
+	 --signal tensao_c : integer := 0;
 begin
 
 	-- Instantiate the Unit Under Test (UUT)
@@ -292,7 +294,8 @@ begin
 			angle := 0;
 			LED(7 downto 0) <= "01010101";
 		elsif rising_edge(clk) then
-			LED(7 downto 0) <= do_o(7 downto 0);
+			--LED(7 downto 0) <= do_o(11 downto 4);
+			
 			if nova_entrada = '0' then
 				counter := counter + 1;
 			end if;
@@ -322,8 +325,47 @@ begin
 				end if;
 				
 			end if;
+			
+			--	******************************************
+			--******** "EXIBIR TENSAO NOS LEDS" ************  A CADA 0,375Volts acende um led
+			--  ******************************************
+			tensao <= to_integer(unsigned(do_o));
+			
+			if (tensao > 0) and (512 > tensao) then -- Se é maior que 0V e menor que 0,375V
+				LED(7 downto 0) <= "00000001";
+			end if;
+			
+			if (tensao >= 512) and (1024 > tensao) then -- Se é maior que 0,375V e menor que 0,75V
+				LED(7 downto 0) <= "00000011";
+			end if;
+
+			if (tensao >= 1024) and (1536 > tensao) then -- Se é maior que 0,75V e menor que 1,125V
+				LED(7 downto 0) <= "00000111";
+			end if;
+			
+			if (tensao >= 1536) and (2048 > tensao) then -- Se é maior que 1,125V e menor que 1,5V
+				LED(7 downto 0) <= "00001111";
+			end if;
+			
+			if (tensao >= 2048) and (2560 > tensao) then -- Se é maior que 1,5V e menor que 1,875V
+				LED(7 downto 0) <= "00011111";
+			end if;
+			
+			if (tensao >= 2560) and (3072 > tensao) then -- Se é maior que 1,875V e menor que 2,25V
+				LED(7 downto 0) <= "00111111";
+			end if;
+			
+			if (tensao >= 3072) and (3584 > tensao) then -- Se é maior que 2,25V e menor que 2,625V
+				LED(7 downto 0) <= "01111111";
+			end if;
+			
+			if (tensao >= 3584) and (4096 > tensao) then -- Se é maior que 2,625V e menor que 3,0V
+				LED(7 downto 0) <= "11111111";
+			end if;
+			
 		end if;
 	end process;
+	
 	
 end Behavioral;
 
