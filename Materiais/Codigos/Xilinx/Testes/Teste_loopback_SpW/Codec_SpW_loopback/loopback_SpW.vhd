@@ -256,6 +256,40 @@ architecture Behavioral of loopback_SpW is
 	signal sig_spw_si   : std_logic;
 	signal sig_spw_do   : std_logic;
 	signal sig_spw_so   : std_logic;
+
+	-- Signal SpW light 1 (gera numeros e escreve)
+	signal sig_autostart1 : std_logic;
+	signal sig_linkstart1 : std_logic;
+	signal sig_linkdis1   : std_logic;
+	
+	signal sig_rst1      : std_logic;
+	signal sig_tick_in1  : std_logic;
+    signal sig_ctrl_in1  : std_logic_vector(1 downto 0);
+	signal sig_time_in1  : std_logic_vector(5 downto 0) := (others => '0');
+	signal sig_txwrite1  : std_logic;
+	signal sig_txflag1   : std_logic;
+	signal sig_txdata1   : std_logic_vector(7 downto 0) := (others => '0');
+	signal sig_txrdy1    : std_logic;
+	signal sig_txhalff1  : std_logic;
+	signal sig_tick_out1 : std_logic;
+	signal sig_ctrl_out1	: std_logic_vector(1 downto 0);
+	signal sig_time_out1	: std_logic_vector(5 downto 0);
+	signal sig_rxvalid1  : std_logic;
+	signal sig_rxhalff1  : std_logic;
+	signal sig_rxflag1   : std_logic;
+	signal sig_rxdata1   : std_logic_vector(7 downto 0);
+	signal sig_rxread1   : std_logic;
+	signal sig_started1  : std_logic;
+	signal sig_connecting1 : std_logic;
+	signal sig_running1  : std_logic;
+	signal sig_errdisc1  : std_logic;
+	signal sig_errpar1   : std_logic;
+	signal sig_erresc1   : std_logic;
+	signal sig_errcred1  : std_logic;
+	signal sig_spw_di1   : std_logic;
+	signal sig_spw_si1   : std_logic;
+	signal sig_spw_do1   : std_logic;
+	signal sig_spw_so1   : std_logic;
 	
 	signal codec_state : std_logic_vector(6 downto 0);
 	
@@ -326,7 +360,7 @@ begin
         tick_in		=> sig_tick_in,
         ctrl_in		=> sig_ctrl_in,
         time_in		=> sig_time_in,
-        txwrite		=> '1',
+        txwrite		=> sig_txwrite,
         txflag		=> sig_txflag,
         txdata		=> sig_txdata,
         txrdy		=> sig_txrdy,
@@ -353,6 +387,55 @@ begin
     );
 	
 	
+	c_SpW_light1: spwstream
+	generic map(
+        sysfreq		=> 100.0e6,
+        txclkfreq	=> 100.0e6,
+        rximpl		=> impl_generic,
+        rxchunk		=> 1,
+        tximpl		=> impl_generic,
+        rxfifosize_bits => 11,
+        txfifosize_bits => 11
+    )
+    port map(
+        clk 	=> Clk,
+        rxclk	=> Clk,
+        txclk	=> Clk,
+        rst		=> not(RESET_doubleclk),
+        autostart 	=> sig_autostart1,
+        linkstart	=> sig_linkstart1,
+        linkdis		=> sig_linkdis1,
+        txdivcnt	=> "00000001",
+        tick_in		=> sig_tick_in1,
+        ctrl_in		=> sig_ctrl_in1,
+        time_in		=> sig_time_in1,
+        txwrite		=> sig_txwrite1,
+        txflag		=> sig_txflag1,
+        txdata		=> sig_txdata1,
+        txrdy		=> sig_txrdy1,
+        txhalff		=> sig_txhalff1,
+        tick_out	=> sig_tick_out1,
+        ctrl_out	=> sig_ctrl_out1,
+        time_out	=> sig_time_out1,
+        rxvalid		=> sig_rxvalid1,
+        rxhalff		=> sig_rxhalff1,
+        rxflag		=> sig_rxflag1,
+        rxdata		=> sig_rxdata1,
+        rxread		=> sig_rxread1,
+        started		=> sig_started1,
+        connecting	=> sig_connecting1,
+        running		=> sig_running1,
+        errdisc		=> sig_errdisc1,
+        errpar		=> sig_errpar1,
+        erresc		=> sig_erresc1,
+        errcred		=> sig_errcred1,
+        spw_di		=> sig_spw_di1,
+        spw_si		=> sig_spw_si1,
+        spw_do		=> sig_spw_do1,
+        spw_so		=> sig_spw_so1
+    );
+	
+	
 -- =========================================
 -- * * * * * Inicializando conexao * * * * *
 -- =========================================
@@ -365,6 +448,10 @@ begin
 	sig_autostart <= '1';
 	sig_linkstart <= '1';
 	sig_linkdis <= '0';
+	
+	sig_autostart1 <= '1';
+	sig_linkstart1 <= '1';
+	sig_linkdis1 <= '0';
 	
 -- =========================================
 
@@ -414,13 +501,105 @@ LEDs_PF(0) <= sig_rxdata(0);
 -- ==========================================
 -- * * * *  loopback SpaceWire light  * * * * *
 -- ==========================================
-    sig_spw_di <= sig_spw_do;
-    sig_spw_si <= sig_spw_so;
+--    sig_spw_di <= sig_spw_do;
+--    sig_spw_si <= sig_spw_so;
+	
+	sig_spw_di <= sig_spw_do1;
+	sig_spw_si <= sig_spw_so1;
+	
+	sig_spw_di1 <= sig_spw_do;
+	sig_spw_si1 <= sig_spw_so;
+	
+	
 -- =========================================	
 
 
 -- Buffer_Write1 no GPIO_o
 s_GPIOs_o(3) <= Buffer_Write1;
+
+
+
+
+-- ===============================================================================================
+-- = = = = = = = = = = = = = = = = = = = PROCESSO CODEC SpW 1  = = = = = = = = = = = = = = = = = = 
+-- ===============================================================================================
+	PROCESS (Clk)
+	begin
+		
+		if	(rising_edge(Clk)) then
+		
+			if (sig_running1 = '0') then
+			estado_codec <= estado_desativado;
+			
+			else 
+				case estado_codec is
+					
+				when estado_desativado =>
+					if (sig_running1 = '1') then -- verifica se conexão está em "running"
+						estado_codec <= estado_inicia; -- vai para estado_inicia
+					else
+						contador <= 0;
+						somador  <= 0;
+						estado_codec <= estado_desativado; -- continua no estado desativado
+					end if;	
+						
+				when estado_inicia =>
+					if (contador < 5) then
+						contador <= contador + 1;
+						estado_codec <= estado_inicia; -- continua estado_inicia
+					else	
+						if (contador = 5) then
+							somador <= somador + 1;
+							contador <= 0;
+							estado_codec <= estado_espera; -- vai para estado_espera
+						end if;	
+					end if;	
+						
+				when estado_espera =>
+					if (sig_txrdy1 = '1') then --verifica se pode escrever dados na entrada
+						estado_codec <= estado_escreve; -- vai para estado_escreve
+					else
+						estado_codec <= estado_espera; -- continua estado_espera
+					end if;	
+						
+				when estado_escreve =>
+--					if (sig_txrdy1 = '1') then
+--						estado_codec <= estado_escreve;
+--					else
+						estado_codec <= estado_inicia;
+						contador <= 1;
+--					end if;	
+						
+				end case;
+			end if;
+		end if;
+	end PROCESS;
+	
+	-- EESTADOS CODEC SpW0
+	PROCESS (estado_codec)
+	begin
+        case estado_codec is
+		
+            when estado_desativado => 
+                sig_txwrite1 <= '0';
+				  
+            when estado_inicia =>
+                sig_txwrite1 <= '0';
+					 
+            when estado_espera =>
+				sig_txwrite1 <= '0';
+				sig_txdata1  <= std_logic_vector(to_unsigned(somador, sig_txdata1'length));
+				
+            when estado_escreve =>
+				if (somador > 2) then
+					sig_txwrite1 <= '1';
+				end if;  
+		end case;		  
+	end PROCESS;
+
+-- ===============================================================================================
+-- = = = = = = = = = = = = = = = = FIM PROCESSO CODEC SpW 1  = = = = = = = = = = = = = = = = = = = 
+-- ===============================================================================================
 
 
 -- ===============================================================================================
@@ -474,6 +653,7 @@ s_GPIOs_o(3) <= Buffer_Write1;
             when estado_desativado1 => 
 --              TX_Write1 <= '0';
 --				Buffer_Ready1 <= '1'; -- Pede pra realizar leitura.
+
 				sig_txwrite <= '0'; -- Nao escreve
 				sig_rxread <= '0'; -- Espera para poder ler
             when estado_leitura1 =>
