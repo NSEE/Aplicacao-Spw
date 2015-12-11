@@ -345,21 +345,21 @@ LED(3) <= codec_state(4); -- Exibir status do codec "running".
 	
         case estado_codec1 is
 		
-            when estado_desativado1 =>
+			when estado_desativado1 =>
 				sig_txwrite <= '0'; -- Nao escreve
 				sig_rxread <= '0'; -- Espera para poder ler
 				
-            when estado_leitura1 =>
-				sig_rxread <= '1'; -- Realiza leitura
+			when estado_leitura1 =>
+				sig_rxread <= '0'; 
 				sig_txwrite <= '0'; -- Nao escreve
 				sig_txdata <= sig_rxdata;
 				sig_txflag <= sig_rxflag;
 			
 			when estado_espera1 =>
-				sig_rxread <= '0';
-				sig_txwrite <= '0';
+				sig_rxread <= '1'; -- Dados recebidos aceitos
+				sig_txwrite <= '0'; -- Nao escreve
 			
-            when estado_escreve1 =>
+			when estado_escreve1 =>
 				sig_rxread <= '0'; -- Para de fazer a leitura
 				sig_txwrite <= '1'; -- Realiza a escrita
 				
