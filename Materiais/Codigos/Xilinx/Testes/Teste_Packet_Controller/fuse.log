@@ -1,0 +1,43 @@
+Running: E:\Xilinx\14.7\ISE_DS\ISE\bin\nt64\unwrapped\fuse.exe -intstyle ise -incremental -lib secureip -o E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/tb_teste_controller_isim_beh.exe -prj E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/tb_teste_controller_beh.prj tb_teste_controller 
+ISim P.20131013 (signature 0x7708f090)
+Number of CPUs detected in this system: 4
+Turning on mult-threading, number of parallel sub-compilation jobs: 8 
+Determining compilation order of HDL files
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/SpW/syncdff.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/SpW/spwram.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/SpW/spwpkg.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/SpW/spwxmit_fast.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/SpW/spwxmit.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/SpW/spwrecvfront_generic.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/SpW/spwrecvfront_fast.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/SpW/spwrecv.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/SpW/spwlink.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/SpW/spwstream.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/registrador.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/Packet_receiver.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/Packet_controller.vhd" into library work
+Parsing VHDL file "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/tb_teste_controller.vhd" into library work
+Starting static elaboration
+WARNING:HDLCompiler:960 - "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/Packet_controller.vhd" Line 186: Expression has incompatible type
+WARNING:HDLCompiler:960 - "E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/source/Packet_controller.vhd" Line 202: Expression has incompatible type
+Completed static elaboration
+Compiling package standard
+Compiling package std_logic_1164
+Compiling package spwpkg
+Compiling package numeric_std
+Compiling architecture behavioral of entity Packet_receiver [packet_receiver_default]
+Compiling architecture spwlink_arch of entity spwlink [\spwlink(640)\]
+Compiling architecture spwrecv_arch of entity spwrecv [\spwrecv(85,1)\]
+Compiling architecture spwxmit_arch of entity spwxmit [spwxmit_default]
+Compiling architecture spwrecvfront_arch of entity spwrecvfront_generic [spwrecvfront_generic_default]
+Compiling architecture spwram_arch of entity spwram [\spwram(11,9)\]
+Compiling architecture spwstream_arch of entity spwstream [\spwstream(100000000.0,100000000...]
+Compiling architecture behavioral of entity Packet_controller [packet_controller_default]
+Compiling architecture rtl of entity Reg_Geral [reg_geral_default]
+Compiling architecture behavior of entity tb_teste_controller
+Time Resolution for simulation is 1ps.
+Waiting for 6 sub-compilation(s) to finish...
+Compiled 23 VHDL Units
+Built simulation executable E:/Users/Dennis/Documentos/SpW/Aplicacao-Spw/Materiais/Codigos/Xilinx/Testes/Teste_Packet_Controller/tb_teste_controller_isim_beh.exe
+Fuse Memory Usage: 36424 KB
+Fuse CPU Usage: 765 ms
